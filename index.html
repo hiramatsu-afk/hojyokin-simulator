@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>注文住宅 補助金シミュレーター｜職人社長の家づくり工務店</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Inter','Noto Sans JP',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:linear-gradient(to bottom right,#f0fdf4,#ffffff,rgba(240,253,244,0.5));
+  color:#1f2937;
+  line-height:1.75;
+  max-width:42rem;
+  margin:0 auto;
+  min-height:100dvh;
+  padding:0 1rem;
+  position:relative;
+  overflow-x:hidden;
+}
+/* 装飾ぼかし円 */
+body::before,body::after{
+  content:'';position:absolute;width:24rem;height:24rem;border-radius:9999px;
+  background:rgba(167,243,208,0.4);filter:blur(64px);pointer-events:none;z-index:-1;
+}
+body::before{left:-8rem;top:-8rem}
+body::after{right:-8rem;bottom:-8rem}
+
+/* ヘッダー */
+header{
+  padding:2rem 0 1.5rem;
+  text-align:center;
+}
+header .brand{
+  display:inline-flex;align-items:center;gap:0.375rem;
+  border-radius:0.25rem;background:#f0fdf4;
+  padding:0.2rem 0.625rem;font-size:0.7rem;font-weight:600;color:#059669;
+  margin-bottom:0.75rem;
+}
+header h1{
+  font-size:1.5rem;font-weight:700;letter-spacing:-0.025em;
+  color:#1f2937;margin-bottom:0.375rem;line-height:1.4;
+}
+@media(min-width:480px){header h1{font-size:1.75rem}}
+header .sub{
+  font-size:0.8rem;color:#9ca3af;line-height:1.5;
+}
+
+/* セクション */
+.section{
+  background:#ffffff;
+  border-radius:1rem;
+  padding:1.5rem;
+  box-shadow:0 1px 3px rgba(0,0,0,0.06);
+  border:1px solid #f3f4f6;
+  margin-bottom:1.5rem;
+}
+.section h2{
+  font-size:1.125rem;font-weight:600;color:#1f2937;
+  margin-bottom:1rem;padding-bottom:0.75rem;
+  border-bottom:1px solid #f3f4f6;
+  display:flex;align-items:center;gap:0.5rem;
+}
+
+/* フォーム */
+label{
+  display:block;font-size:0.875rem;font-weight:600;color:#374151;margin-bottom:0.5rem;
+}
+select{
+  width:100%;padding:0.875rem 1rem;
+  border:2px solid #e5e7eb;border-radius:0.75rem;
+  font-size:1rem;background:#fff;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23059669'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 1rem center;
+  margin-bottom:1rem;
+  transition:border-color 0.2s;
+  font-family:inherit;
+  color:#1f2937;
+}
+select:focus{outline:none;border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,0.1)}
+
+/* 検索ボタン */
+.btn-search{
+  width:100%;padding:1rem 2rem;
+  background:#059669;color:#fff;border:none;
+  border-radius:9999px;font-size:1rem;font-weight:600;
+  cursor:pointer;transition:all 0.2s;
+  font-family:inherit;
+  box-shadow:0 10px 15px -3px rgba(5,150,105,0.2);
+}
+.btn-search:hover{background:#047857;box-shadow:0 12px 20px -3px rgba(5,150,105,0.3)}
+.btn-search:active{transform:scale(0.98)}
+
+/* タブ（未使用だが互換性保持） */
+.tabs{display:flex;gap:4px;overflow-x:auto;padding:4px 0;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex:0 0 auto;padding:8px 14px;border:2px solid #e5e7eb;background:#fff;border-radius:9999px;font-size:0.8em;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.2s}
+.tab-btn.active{border-color:#059669;background:#f0fdf4;color:#059669}
+.tab-btn .count{display:inline-block;background:#e5e7eb;color:#6b7280;border-radius:10px;padding:0 6px;margin-left:4px;font-size:0.85em}
+.tab-btn.active .count{background:#059669;color:#fff}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* サマリーボックス */
+.summary-box{
+  background:#fff;
+  border-radius:1rem;padding:1.25rem;margin-bottom:1rem;text-align:center;
+  border:1px solid #f3f4f6;
+  position:relative;overflow:hidden;
+}
+.summary-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,#059669,#34d399,#059669);
+}
+.summary-box .total-label{font-size:0.8rem;color:#6b7280;font-weight:500}
+.summary-box .total-amount{font-size:1.75rem;font-weight:700;color:#047857;margin:0.25rem 0;letter-spacing:-0.025em}
+.summary-box .total-note{font-size:0.7rem;color:#9ca3af}
+
+/* カード */
+.card{
+  background:#fff;
+  border-radius:1rem;
+  padding:1.25rem;
+  margin-bottom:0.75rem;
+  border:1px solid #f3f4f6;
+  transition:box-shadow 0.2s;
+  animation:fadeIn 0.4s ease;
+  position:relative;
+  overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:#059669;border-radius:3px 0 0 3px;
+}
+.card.pref::before{background:#2563eb}
+.card.city::before{background:#ea580c}
+.card.tax::before{background:#d97706}
+.card.rate::before{background:#7c3aed}
+.card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem}
+.card-name{font-size:0.95rem;font-weight:700;color:#1f2937;line-height:1.4}
+.card-org{font-size:0.7rem;color:#9ca3af;margin-bottom:0.625rem;letter-spacing:0.01em}
+.card-amount{
+  font-size:0.85rem;font-weight:600;color:#047857;
+  margin-bottom:0.625rem;line-height:1.6;
+  background:#f0fdf4;border-radius:0.5rem;padding:0.625rem 0.75rem;
+  border:1px solid rgba(167,243,208,0.3);
+}
+.card-amount.green{color:#047857}
+.card-desc{font-size:0.8rem;color:#6b7280;margin-bottom:0.625rem;line-height:1.7}
+.card-conditions{
+  margin-bottom:0.5rem;
+  background:#f9fafb;border-radius:0.5rem;padding:0.5rem 0.75rem;
+}
+.card-conditions .cond-item{font-size:0.75rem;color:#4b5563;padding:2px 0;padding-left:1.125rem;position:relative;line-height:1.6}
+.card-conditions .cond-item::before{content:"\2713";position:absolute;left:0;color:#059669;font-weight:700;font-size:0.7rem}
+
+/* バッジ */
+.badge{
+  display:inline-block;
+  border-radius:0.25rem;background:#f0fdf4;
+  padding:0.125rem 0.5rem;font-size:0.65rem;font-weight:600;color:#059669;
+  margin-right:0.25rem;margin-bottom:0.375rem;letter-spacing:0.02em;
+}
+.badge-all{background:#f0fdf4;color:#059669}
+.badge-child{background:#fffbeb;color:#b45309}
+.badge-young{background:#fff7ed;color:#c2410c}
+.badge-migrate{background:#eff6ff;color:#1d4ed8}
+.badge-ended{background:#fef2f2;color:#dc2626}
+
+.card-note{font-size:0.7rem;color:#9ca3af;margin-top:0.375rem;padding-top:0.375rem;border-top:1px solid #f3f4f6}
+.card-period{font-size:0.7rem;color:#9ca3af;margin-top:0.125rem}
+.btn-official{
+  display:inline-flex;align-items:center;gap:0.25rem;
+  margin-top:0.5rem;padding:0.375rem 0.875rem;
+  background:#fff;color:#059669;
+  border:1px solid #d1fae5;border-radius:0.375rem;
+  font-size:0.75rem;font-weight:600;text-decoration:none;
+  transition:all 0.15s;
+}
+.btn-official:hover{background:#f0fdf4;border-color:#059669}
+
+/* データなし */
+.no-data{text-align:center;padding:2rem 1rem;color:#9ca3af}
+.no-data h3{font-size:1rem;color:#6b7280;margin-bottom:0.75rem}
+.no-data .guide{text-align:left;font-size:0.85rem;background:#f9fafb;padding:1rem;border-radius:0.75rem;margin-top:0.75rem;border:1px solid #f3f4f6}
+.no-data .guide li{margin-bottom:0.375rem;color:#6b7280}
+
+/* セクションラベル（市区町村名） */
+.section-label{font-size:0.75rem;font-weight:600;color:#ea580c;padding:0.5rem 0 0.25rem;margin-top:0.75rem;letter-spacing:0.03em}
+
+/* 結果グループタイトル */
+.result-group{margin-bottom:1.25rem}
+.result-group-title{
+  font-size:0.8rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;
+  padding:0 0 0.5rem;
+  margin:1.5rem 0 0.625rem;display:flex;align-items:center;gap:0.5rem;
+  border-bottom:2px solid #e5e7eb;
+}
+.result-group-title.national{color:#059669;border-bottom-color:#a7f3d0}
+.result-group-title.pref{color:#2563eb;border-bottom-color:#bfdbfe}
+.result-group-title.city{color:#ea580c;border-bottom-color:#fed7aa}
+.result-group-title.tax{color:#92400e;border-bottom-color:#fde68a}
+.result-group-count{font-size:0.65rem;font-weight:500;background:#f3f4f6;color:#6b7280;padding:0.125rem 0.5rem;border-radius:0.25rem;letter-spacing:0}
+
+#results{display:none}
+
+/* ローディングオーバーレイ */
+#loading-overlay{
+  display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(255,255,255,0.97);z-index:9999;
+  justify-content:center;align-items:center;flex-direction:column;
+}
+#loading-overlay.active{display:flex}
+.loading-spinner{
+  width:48px;height:48px;
+  border:4px solid #e5e7eb;border-top:4px solid #059669;
+  border-radius:50%;animation:spin 0.8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{margin-top:1rem;font-size:1rem;color:#059669;font-weight:600}
+.loading-sub{margin-top:0.375rem;font-size:0.8rem;color:#9ca3af}
+.loading-bar{width:200px;height:4px;background:#e5e7eb;border-radius:9999px;margin-top:1rem;overflow:hidden}
+.loading-bar-fill{height:100%;background:linear-gradient(90deg,#059669,#34d399);border-radius:9999px;animation:loadBar 2s ease-in-out}
+@keyframes loadBar{from{width:0}to{width:100%}}
+
+/* CTAセクション */
+.cta-section{
+  background:#fff;
+  border:1px solid #f3f4f6;
+  color:#1f2937;
+  margin:1rem 0;border-radius:1rem;padding:1.5rem;text-align:center;
+  box-shadow:0 1px 3px rgba(0,0,0,0.06);
+}
+.cta-section h3{font-size:1rem;font-weight:700;margin-bottom:0.5rem;color:#1f2937}
+.cta-section p{color:#6b7280;font-size:0.8rem}
+.btn-cta{
+  display:inline-block;padding:1rem 2rem;
+  background:#059669;color:#fff;
+  border-radius:9999px;font-size:1rem;font-weight:600;
+  text-decoration:none;margin:0.375rem 0.25rem;
+  transition:all 0.2s;
+  box-shadow:0 10px 15px -3px rgba(5,150,105,0.2);
+}
+.btn-cta:hover{background:#047857;box-shadow:0 12px 20px -3px rgba(5,150,105,0.3);transform:scale(1.02)}
+.btn-secondary{
+  display:inline-block;padding:0.75rem 1.5rem;
+  background:transparent;color:#059669;
+  border:2px solid #a7f3d0;border-radius:9999px;
+  font-size:0.875rem;font-weight:600;cursor:pointer;
+  margin:0.375rem 0.25rem;text-decoration:none;
+  transition:all 0.2s;font-family:inherit;
+}
+.btn-secondary:hover{background:#f0fdf4;border-color:#059669}
+
+/* 注意事項 */
+.disclaimer{
+  margin:1.5rem 0;padding:1rem 1.25rem;
+  background:#fffbeb;border:1px solid #fde68a;
+  border-radius:0.75rem;font-size:0.8rem;color:#92400e;
+}
+.disclaimer ul{padding-left:1rem}
+.disclaimer li{margin-bottom:0.25rem}
+
+/* フッター */
+.footer{
+  background:#fff;border-top:1px solid #f3f4f6;
+  text-align:center;padding:1.5rem 1rem;
+  font-size:0.75rem;color:#9ca3af;
+  margin-top:1rem;
+}
+
+/* 印刷時 */
+@media print{
+.no-print{display:none!important}
+body{max-width:100%;background:#fff}
+body::before,body::after{display:none}
+.section,.card{box-shadow:none;break-inside:avoid}
+.cta-section{display:none}
+.disclaimer{break-inside:avoid}
+header{background:#fff!important}
+}
+</style>
+</head>
+<body>
+
+<header>
+<div class="brand">&#128250; 職人社長の家づくり工務店</div>
+<h1>あなたの地域で使える<br>補助金をチェック</h1>
+<p class="sub">注文住宅で使える補助金・減税制度をまとめてシミュレーション</p>
+</header>
+
+<div class="section no-print" id="search-section">
+<h2>&#128269; お住まいの地域を選択</h2>
+<label for="pref">都道府県</label>
+<select id="pref" onchange="updateCities()">
+<option value="">都道府県を選択してください</option>
+</select>
+<label for="city">市区町村</label>
+<select id="city" disabled>
+<option value="">先に都道府県を選択してください</option>
+</select>
+<button class="btn-search" onclick="searchSubsidies()">&#128270; 補助金を検索する</button>
+</div>
+
+<div id="loading-overlay">
+<div class="loading-spinner"></div>
+<div class="loading-text">補助金情報を検索中...</div>
+<div class="loading-sub" id="loading-detail">公的機関のデータを照合しています</div>
+<div class="loading-bar"><div class="loading-bar-fill"></div></div>
+</div>
+
+<div id="results">
+<div class="section">
+<div class="summary-box" id="summary-box">
+<div class="total-label" id="region-label">-</div>
+<div class="total-amount" id="total-amount">-</div>
+<div class="total-note">※複数制度の併用制限あり。実際の受給額は条件により異なります</div>
+</div>
+<div id="result-pref"></div>
+<div id="result-city"></div>
+<div id="result-national"></div>
+<div id="result-tax"></div>
+</div>
+</div>
+
+<div class="cta-section no-print" id="cta-section" style="display:none">
+<h3>どの補助金が使えるか、プロに相談しませんか？</h3>
+<p style="font-size:0.875rem;margin-bottom:1.25rem;">補助金の申請手続きや併用の可否など、専門スタッフが無料でご案内します</p>
+<a href="tel:" class="btn-cta">&#128222; 無料相談を予約する</a>
+<div style="margin-top:1rem">
+<button class="btn-secondary" onclick="window.print()">&#128424; 印刷・PDF保存</button>
+<button class="btn-secondary" onclick="resetSearch()">&#128260; 条件を変えてやり直す</button>
+</div>
+</div>
+
+<div class="disclaimer" id="disclaimer" style="display:none">
+<strong>&#9888;&#65039; ご注意</strong>
+<ul>
+<li>2025-2026年度の公開情報に基づく概要です</li>
+<li>予算上限で受付終了する場合があります</li>
+<li>複数補助金の併用には制限がある場合があります</li>
+<li>正確な条件・金額は必ず各制度の公式情報でご確認ください</li>
+<li>最終更新日: 2026年3月23日</li>
+</ul>
+</div>
+
+<footer class="footer">
+&copy; 2026 平松建築 職人社長の家づくり工務店
+</footer>
+
+<script>
+// ============================================================
+// 国の制度データ
+// ============================================================
+const nationalSubsidies = [
+  {
+    name: "みらいエコ住宅2026事業",
+    org: "国土交通省・環境省",
+    amount: "GX志向型：110万円（5-8地域）/ 125万円（1-4地域）【全世帯】\n長期優良住宅：75〜80万円【子育て・若者世帯限定】\nZEH水準：35〜40万円【子育て・若者世帯限定】",
+    maxVal: 1250000,
+    desc: "GX志向型住宅等の新築を支援する国の補助金。2025年度「子育てグリーン住宅支援事業」の後継制度。GX志向型は全世帯対象。",
+    conditions: ["2025年11月28日以降に基礎工事着手","交付申請期限：2026年12月31日（ZEH水準注文住宅は2026年9月30日）","GX志向型は全世帯対象","長期優良・ZEH水準は子育て世帯（18歳未満の子）または若者夫婦世帯（39歳以下）限定"],
+    badges: ["全世帯対象","子育て世帯限定","若者夫婦世帯"],
+    url: "https://mirai-eco2026.mlit.go.jp/",
+    type: "national",
+    note: "みらいエコ住宅2026事業と子育てグリーン住宅支援事業は併用不可"
+  },
+  {
+    name: "子育てグリーン住宅支援事業",
+    org: "国土交通省",
+    amount: "GX志向型：最大160万円",
+    maxVal: 1600000,
+    desc: "2025年度の補助事業。GX志向型住宅の新築で最大160万円。後継制度「みらいエコ住宅2026事業」に移行済み。",
+    conditions: ["GX志向型住宅の新築が対象","2024年11月22日以降に基礎工事着手"],
+    badges: ["全世帯対象"],
+    url: "https://kosodate-green.mlit.go.jp/",
+    type: "national",
+    ended: true,
+    note: "受付終了（後継：みらいエコ住宅2026事業）"
+  },
+  {
+    name: "給湯省エネ2026事業",
+    org: "経済産業省",
+    amount: "エコキュート：7万円＋性能加算3万円\nハイブリッド給湯機：10万円＋性能加算2万円\nエネファーム：17万円",
+    maxVal: 170000,
+    desc: "高効率給湯器の導入を支援する補助事業。住宅省エネ2026キャンペーンの一環。",
+    conditions: ["対象の高効率給湯器を住宅に導入","エコキュート・ハイブリッド・エネファームが対象"],
+    badges: ["全世帯対象"],
+    url: "https://kyutou-shoene2026.meti.go.jp/",
+    type: "national",
+    note: "みらいエコ住宅2026事業と併用可能"
+  },
+  {
+    name: "蓄電池導入支援事業",
+    org: "環境共創イニシアチブ（SII）",
+    amount: "4万円/kWh（例：10kWhで約40万円）",
+    maxVal: 400000,
+    desc: "家庭用蓄電池の導入を支援。DR（デマンドレスポンス）実証への参加が条件。",
+    conditions: ["SII登録蓄電池が対象","DR（デマンドレスポンス）実証に参加"],
+    badges: ["全世帯対象"],
+    url: "https://sii.or.jp/DRchikudenchi05r/",
+    type: "national"
+  }
+];
+
+const taxIncentives = [
+  {
+    name: "住宅ローン減税",
+    org: "国税庁",
+    amount: "年末残高の0.7% x 13年間\n子育て世帯・認定住宅：最大455万円\n一般省エネ住宅：最大318.5万円",
+    maxVal: 4550000,
+    desc: "住宅ローンの年末残高の0.7%を所得税・住民税から控除。13年間で最大455万円の減税効果。",
+    conditions: ["住宅ローンを利用して住宅を取得","床面積50㎡以上（特例40㎡以上）","合計所得金額2,000万円以下","入居年の翌年に確定申告"],
+    badges: ["全世帯対象","子育て世帯限定"],
+    url: "https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1211-1.htm",
+    type: "tax"
+  },
+  {
+    name: "贈与税非課税制度（住宅取得等資金）",
+    org: "国税庁",
+    amount: "省エネ住宅：最大1,000万円非課税\n一般住宅：最大500万円非課税",
+    maxVal: 10000000,
+    desc: "父母・祖父母からの住宅取得資金の贈与が非課税に。省エネ住宅なら最大1,000万円。",
+    conditions: ["直系尊属（父母・祖父母等）からの贈与","贈与年の1月1日時点で18歳以上","合計所得金額2,000万円以下","翌年3月15日までに居住開始"],
+    badges: ["全世帯対象"],
+    url: "https://www.nta.go.jp/taxes/shiraberu/taxanswer/sozoku/4508.htm",
+    type: "tax"
+  },
+  {
+    name: "登録免許税の軽減",
+    org: "法務局",
+    amount: "税率軽減：0.4% → 0.15%\n（認定長期優良住宅は0.1%）",
+    maxVal: 0,
+    desc: "住宅用家屋の所有権保存登記にかかる登録免許税の税率が軽減。",
+    conditions: ["新築後1年以内に登記","床面積50㎡以上","自己居住用住宅"],
+    badges: ["全世帯対象"],
+    url: "https://www.nta.go.jp/taxes/shiraberu/taxanswer/inshi/7191.htm",
+    type: "tax"
+  },
+  {
+    name: "不動産取得税の軽減",
+    org: "都道府県税事務所",
+    amount: "課税標準から1,200万円控除\n（認定長期優良住宅は1,300万円控除）",
+    maxVal: 0,
+    desc: "新築住宅の取得にかかる不動産取得税の課税標準から1,200万円を控除。",
+    conditions: ["床面積50㎡以上240㎡以下","新築住宅の取得"],
+    badges: ["全世帯対象"],
+    url: "https://www.mlit.go.jp/jutakukentiku/house/jutakukentiku_house_tk2_000017.html",
+    type: "tax"
+  },
+  {
+    name: "固定資産税の減額",
+    org: "市区町村",
+    amount: "新築後3年間、税額を1/2に減額\n（認定長期優良住宅は5年間）",
+    maxVal: 0,
+    desc: "新築住宅の固定資産税が3年間（長期優良住宅は5年間）半額に。",
+    conditions: ["新築住宅であること","床面積50㎡以上280㎡以下","居住部分の床面積が全体の1/2以上"],
+    badges: ["全世帯対象"],
+    url: "https://www.mlit.go.jp/jutakukentiku/house/jutakukentiku_house_tk2_000017.html",
+    type: "tax"
+  },
+  {
+    name: "フラット35S",
+    org: "住宅金融支援機構",
+    amount: "Aプラン：当初10年間 金利▲0.25%\nBプラン：当初5年間 金利▲0.25%",
+    maxVal: 0,
+    desc: "省エネ・耐震性などの技術基準を満たす住宅で、フラット35の金利が引き下げ。",
+    conditions: ["フラット35の借入れ","省エネ・耐震・バリアフリー・耐久性の技術基準適合","Aプラン：高い基準、Bプラン：標準基準"],
+    badges: ["全世帯対象"],
+    url: "https://www.flat35.com/loan/lineup/flat35s/index.html",
+    type: "rate"
+  },
+  {
+    name: "フラット35子育てプラス",
+    org: "住宅金融支援機構",
+    amount: "こども1人：金利▲0.25%\nこども2人：金利▲0.50%\nこども3人：金利▲0.75%",
+    maxVal: 0,
+    desc: "子どもの人数に応じてフラット35の金利をさらに引き下げ。フラット35Sとの併用可能。",
+    conditions: ["フラット35の借入れ","子育て世帯（子どもがいる世帯）","フラット35Sとの併用可能"],
+    badges: ["子育て世帯限定"],
+    url: "https://www.flat35.com/loan/lineup/flat35kosodate-plus/index.html",
+    type: "rate"
+  }
+];
+
+// ============================================================
+// 都道府県・市区町村データ
+// ============================================================
+const prefData = {
+  "北海道": {
+    cities: ["札幌市","旭川市","函館市","釧路市","帯広市","北見市","小樽市","苫小牧市","江別市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "札幌市": [{name:"札幌版次世代住宅補助制度",org:"札幌市都市局住宅課",amount:"プラチナ等級：220万円\nゴールド等級：180万円",maxVal:2200000,desc:"札幌市内に新築する一戸建て住宅で、断熱等基準がゴールド以上の札幌版次世代住宅を対象に建築費用を補助。太陽光発電と蓄電設備の設置が必要。",conditions:["札幌市内で自ら居住する一戸建て住宅を新築","札幌版次世代住宅適合証明書取得","太陽光発電・蓄電設備の設置","建売住宅は対象外"],badges:["全世帯対象"],url:"https://www.city.sapporo.jp/toshi/jutaku/10shien/zisedai/zisedaihojo.html"}]
+    }
+  },
+  "青森県": {
+    cities: ["青森市","八戸市","弘前市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "青森市": [{name:"地方創生移住支援事業（移住支援金）",org:"青森市役所",amount:"東京圏からの移住者向け支援金",maxVal:0,desc:"東京圏から青森県への移住者向け支援金。",conditions:["東京圏からの移住であること"],badges:["移住者向け"],url:"https://house.goo.ne.jp/chiiki/kurashi/aomori/02201.html"}]
+    }
+  },
+  "岩手県": {
+    cities: ["盛岡市","一関市","奥州市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "盛岡市": [
+        {name:"盛岡市市産材利用住宅支援事業",org:"盛岡市農林部林業課",amount:"市産材1立米あたり13,000円\n補助上限30万円",maxVal:300000,desc:"市内の森林から生産される市産材の利用促進のため、住宅の新築に市産材を使用した場合に補助。",conditions:["盛岡市内で住宅を新築","市産材を使用すること"],badges:["全世帯対象"],url:"https://www.city.morioka.iwate.jp/jigyousha/1026070/ringyo/1008273.html"},
+        {name:"盛岡市住宅用太陽光発電システム等設置費補助金",org:"盛岡市環境部環境企画課",amount:"太陽光発電・HEMS等の設置費用補助",maxVal:0,desc:"市内の自己所有の一戸建て住宅に太陽光発電システムを設置する方へ補助金を交付。",conditions:["盛岡市内の自己所有一戸建て住宅に設置"],badges:["全世帯対象"],url:"https://www.city.morioka.iwate.jp/kurashi/kankyo/kankyokatsudo/1034275.html",ended:true,note:"2025年度は予算上限到達で受付終了"}
+      ]
+    }
+  },
+  "宮城県": {
+    cities: ["仙台市","石巻市","大崎市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "仙台市": [{name:"せんだい健幸省エネ住宅補助金（新築向け）",org:"仙台市環境局脱炭素政策課",amount:"最大310万円（ZEH+ S-G3の場合）\n基本額55～100万円\n＋断熱費用140～185万円\n＋太陽光発電70万円",maxVal:3100000,desc:"省エネ性能が高く健康にも配慮した住宅の新築を支援。ZEHまたはZEH+で仙台市独自の断熱基準（ぬく杜）を満たす一戸建て住宅が対象。",conditions:["ZEHまたはZEH+であること","せんだい健幸省エネ住宅「ぬく杜」認定基準を満たすこと","令和7年4月1日以降の契約締結","国のZEH補助金等との併用不可"],badges:["全世帯対象"],url:"https://www.city.sendai.jp/ondanka/kodannetsu/sintikuhozyo.html"}]
+    }
+  },
+  "秋田県": {
+    cities: ["秋田市","横手市","大仙市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "秋田市": [
+        {name:"秋田市多世帯同居推進事業",org:"秋田市建設部住宅整備課",amount:"対象工事の1/2、上限100万円",maxVal:1000000,desc:"県外からの移住または市内在住の子育て世帯が多世帯同居する場合の住宅取得・改修費用を補助。",conditions:["県外からの移住または子育て世帯","多世帯同居すること"],badges:["子育て世帯限定","移住者向け"],url:"https://www.city.akita.lg.jp/kurashi/sumai/1007487/index.html"},
+        {name:"秋田市住宅用太陽光発電システム設置補助金",org:"秋田市建設部住宅整備課",amount:"1kWあたり2万円、最大4kW（計8万円）",maxVal:80000,desc:"住宅用太陽光発電システムの設置費用に対する補助。",conditions:["秋田市内の住宅に太陽光発電システムを設置"],badges:["全世帯対象"],url:"https://www.city.akita.lg.jp/kurashi/sumai/1007487/index.html"}
+      ]
+    }
+  },
+  "山形県": {
+    cities: ["山形市","鶴岡市","酒田市","その他"],
+    prefPrograms: [{name:"やまがた省エネ健康住宅・再エネ設備パッケージ補助金",org:"山形県県土整備部建築住宅課",amount:"やまがた省エネ健康住宅かつZEH：55万円\nやまがた省エネ健康住宅かつZEH+：100万円",maxVal:1000000,desc:"山形県独自基準をクリアした高断熱高気密住宅かつ太陽光発電・蓄電池設備を導入したZEH住宅を新築する場合に補助。",conditions:["やまがた省エネ健康住宅の基準を満たすこと","ZEHまたはZEH+であること","太陽光発電・蓄電池の導入"],badges:["全世帯対象"],url:"https://www.pref.yamagata.jp/tatekkana/support/shien/download/yamagata-jutaku_2025.pdf"}],
+    cityPrograms: {}
+  },
+  "福島県": {
+    cities: ["福島市","郡山市","いわき市","その他"],
+    prefPrograms: [{name:"ふくしまZEH住宅建設補助金",org:"福島県土木部建築住宅課",amount:"ZEH新築住宅への補助（金額は要問い合わせ）",maxVal:0,desc:"福島県の地域性を考慮した「ふくしまならでは」の性能を有するZEH住宅の建設に補助金を交付。",conditions:["ふくしまZEHの基準を満たす住宅を新築"],badges:["全世帯対象"],url:"https://www.pref.fukushima.lg.jp/sec/41065b/shienseido.html"}],
+    cityPrograms: {
+      "郡山市": [{name:"郡山市結婚新生活支援事業補助金",org:"郡山市役所",amount:"最大30万円",maxVal:300000,desc:"新婚世帯の住宅取得にかかる費用を補助。",conditions:["新婚世帯であること"],badges:["若者夫婦世帯"],url:"https://house.goo.ne.jp/chiiki/kurashi/fukushima/07203.html"}]
+    }
+  },
+  "茨城県": {
+    cities: ["水戸市","つくば市","日立市","土浦市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "水戸市": [{name:"水戸市子育て世帯住宅取得補助金",org:"水戸市都市計画部住宅政策課",amount:"住宅・土地取得費用の2%（最大30万円）\n＋子ども加算（2人目以降1人10万円）\n＋空き地・空き家取得10万円\n＋市外転入10万円",maxVal:500000,desc:"子育て世帯が対象区域に住宅を取得した場合に補助金を交付。",conditions:["子育て世帯であること","対象区域内に住宅を取得すること"],badges:["子育て世帯限定"],url:"https://www.city.mito.lg.jp/life/sub/2/"}]
+    }
+  },
+  "栃木県": {
+    cities: ["宇都宮市","足利市","小山市","栃木市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "宇都宮市": [
+        {name:"宇都宮市マイホーム取得支援事業補助金",org:"宇都宮市都市整備部住宅政策課",amount:"最大85万円（市外在住者）\n最大50万円（市内在住者）\n＋子ども1人につき5万円加算",maxVal:850000,desc:"住宅を新築・取得する世帯に対して補助金を交付。居住誘導区域・地区計画区域内が対象。",conditions:["居住誘導区域または地区計画区域内に住宅を新築・取得","住宅ローン契約締結前の事前申込が必須"],badges:["全世帯対象"],url:"https://www.pref.tochigi.lg.jp/h11/town/jyuutaku/jyuutaku/05_sien01utunomiya.html"},
+        {name:"宇都宮市結婚新生活支援事業",org:"宇都宮市",amount:"最大60万円",maxVal:600000,desc:"39歳以下の新婚世帯を対象に、住宅取得費用等を補助。",conditions:["夫婦とも婚姻日時点で39歳以下","婚姻日が令和7年1月1日～令和8年2月28日"],badges:["若者夫婦世帯"],url:"https://www.pref.tochigi.lg.jp/h11/town/jyuutaku/jyuutaku/05_sien01utunomiya.html"}
+      ]
+    }
+  },
+  "群馬県": {
+    cities: ["前橋市","高崎市","太田市","伊勢崎市","その他"],
+    prefPrograms: [],
+    cityPrograms: {}
+  },
+  "埼玉県": {
+    cities: ["さいたま市","川越市","川口市","所沢市","入間市","越谷市","春日部市","草加市","上尾市","その他"],
+    prefPrograms: [{name:"埼玉県 家庭における省エネ・再エネ活用設備導入補助金",org:"埼玉県",amount:"太陽光発電：7万円/kW（上限35万円）\n蓄電池：10万円/件\n太陽熱利用：上限20万円\nエネファーム：5万円/件",maxVal:350000,desc:"県内の既存住宅への省エネ・再エネ設備導入を補助。",conditions:["埼玉県内の自己居住する既存住宅","認定事業者との契約必須","太陽光は発電量の30%以上を自家消費","国の補助事業との併用不可"],badges:["全世帯対象"],url:"https://www.pref.saitama.lg.jp/a0503/hojyokin2.html",note:"太陽光・太陽熱は受付終了済み"}],
+    cityPrograms: {
+      "さいたま市": [{name:"さいたま市 省エネ・断熱住宅普及促進補助金",org:"さいたま市",amount:"ZEH・断熱改修・給湯機器等が対象",maxVal:0,desc:"ZEH、全体・部分断熱改修、給湯機器等の導入費を補助。",conditions:["さいたま市内に住民票を有する市民","自ら居住する住宅","市税滞納なし"],badges:["全世帯対象"],url:"https://www.city.saitama.lg.jp/001/009/015/010/002/p119491.html",ended:true,note:"2025年度受付終了（2025年7月28日終了）"}],
+      "川越市": [{name:"川越市 住宅用脱炭素化設備等導入奨励金",org:"川越市",amount:"太陽光発電：3万円\n蓄電池：3万円\nZEH取得：上限20万円の範囲内",maxVal:200000,desc:"脱炭素化設備の設置やZEH取得に対して奨励金を交付。",conditions:["川越市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.kawagoe.saitama.jp/"}],
+      "川口市": [{name:"川口市 地球温暖化対策活動支援金",org:"川口市",amount:"太陽光発電（市内業者）：上限16万円\n太陽光発電（市外業者）：上限8万円",maxVal:160000,desc:"太陽光発電等の設置費用を支援。市内業者施工の場合は補助額が倍額。",conditions:["川口市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.kawaguchi.lg.jp/"}],
+      "所沢市": [{name:"所沢市 省エネ設備補助",org:"所沢市",amount:"太陽光発電：最大15万円\n蓄電池：最大24万円",maxVal:390000,desc:"埼玉県内で蓄電池補助額が高水準の自治体。",conditions:["所沢市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.tokorozawa.saitama.jp/"}],
+      "入間市": [{name:"入間市 省エネ設備補助",org:"入間市",amount:"太陽光発電：7万円/kW（上限35万円）\n蓄電池：価格の1/3（上限50万円）",maxVal:850000,desc:"太陽光・蓄電池ともに県内最高水準の補助額。",conditions:["入間市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.iruma.saitama.jp/"}]
+    }
+  },
+  "千葉県": {
+    cities: ["千葉市","船橋市","松戸市","柏市","市川市","八千代市","その他"],
+    prefPrograms: [{name:"千葉県 太陽光発電設備等共同購入支援事業",org:"千葉県",amount:"共同購入によるスケールメリットで安価に導入可能",maxVal:0,desc:"千葉県では個人への直接補助はなく、共同購入・リースPPA支援を実施。",conditions:["千葉県内の住宅が対象"],badges:["全世帯対象"],url:"https://www.pref.chiba.lg.jp/ontai/groupbuy/residential.html"}],
+    cityPrograms: {
+      "千葉市": [{name:"千葉市 再生可能エネルギー等設備導入補助金",org:"千葉市",amount:"太陽光発電：1.5万円/kW（最大6万円）\n蓄電池：7万円",maxVal:130000,desc:"戸建て・集合住宅の再エネ設備導入費を補助。",conditions:["千葉市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.chiba.jp/"}],
+      "船橋市": [{name:"船橋市 省エネ設備補助",org:"船橋市",amount:"太陽光発電：1.5万円/kW（上限6万円）\n蓄電池：7万円",maxVal:130000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。",conditions:["船橋市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.funabashi.lg.jp/"}],
+      "松戸市": [{name:"松戸市 省エネ設備補助",org:"松戸市",amount:"蓄電池：7万円",maxVal:70000,desc:"蓄電池の設置費用を助成。太陽光発電は県の共同購入事業等を利用。",conditions:["松戸市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.matsudo.chiba.jp/"}],
+      "柏市": [{name:"柏市 省エネ設備補助",org:"柏市",amount:"太陽光発電：7万円/kW（最大35万円）\n蓄電池：7万円",maxVal:420000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。太陽光は千葉県内で最高水準。",conditions:["柏市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.kashiwa.lg.jp/"}]
+    }
+  },
+  "東京都": {
+    cities: ["千代田区","中央区","港区","新宿区","文京区","台東区","墨田区","江東区","品川区","目黒区","大田区","世田谷区","渋谷区","中野区","杉並区","豊島区","北区","荒川区","板橋区","練馬区","足立区","葛飾区","江戸川区","八王子市","府中市","調布市","町田市","立川市","武蔵野市","三鷹市","多摩市","その他"],
+    prefPrograms: [
+      {name:"東京ゼロエミ住宅普及促進事業",org:"東京都環境局（窓口：クール・ネット東京）",amount:"水準A（戸建）：240万円/戸\n水準B（戸建）：160万円/戸\n水準C（戸建）：40万円/戸\n＋太陽光・蓄電池・V2H加算あり",maxVal:2400000,desc:"東京ゼロエミ住宅の認証を受けた新築住宅への助成。太陽光・蓄電池・V2Hの加算あり。予算規模約294億円。",conditions:["東京ゼロエミ住宅認証取得","床面積2,000㎡未満","太陽光発電システム原則設置"],badges:["全世帯対象"],url:"https://www.tokyo-co2down.jp/subsidy/tokyo_zero_emission_house/tokyo_zero_emission_house_r07_fukyu/",period:"2025年4月1日〜2026年3月31日"},
+      {name:"家庭における蓄電池導入促進事業",org:"クール・ネット東京",amount:"蓄電池新設：12万円/kWh\n蓄電池増設：8万円/kWh\nDR実証参加加算：+10万円\nIoT関連機器：最大10万円/戸",maxVal:0,desc:"太陽光発電による電気の自家消費増大および非常時のエネルギー自立性向上を目的とした蓄電池設置費助成。",conditions:["都内住宅への新規設置","SII登録機器","太陽光発電システム設置済みまたは再エネ電力メニュー契約"],badges:["全世帯対象"],url:"https://www.tokyo-co2down.jp/subsidy/family_tikudenchi/r7/",period:"交付申請：2025年6月30日〜2029年3月30日"},
+      {name:"災害にも強く健康にも資する断熱・太陽光住宅普及拡大事業",org:"クール・ネット東京",amount:"既存住宅3kW以下：15万円/kW（上限45万円）\n既存住宅3kW超：12万円/kW",maxVal:0,desc:"太陽光発電システムの設置助成。他事業の上乗せ補助として申請可能。",conditions:["都内住宅への新規設置","未使用品","出力50kW未満"],badges:["全世帯対象"],url:"https://www.tokyo-co2down.jp/subsidy/family_solor"}
+    ],
+    cityPrograms: {
+      "千代田区": [{name:"千代田区 省エネ設備補助",org:"千代田区",amount:"太陽光発電：対象経費の20%\n蓄電池：対象経費の20%",maxVal:0,desc:"省エネ・創エネ設備の導入費用を助成。",conditions:["千代田区内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.chiyoda.lg.jp/"}],
+      "中央区": [{name:"中央区 省エネ設備補助",org:"中央区",amount:"太陽光発電：10万円/kW（上限35万円）\n蓄電池：1万円/kWh（上限10万円）",maxVal:450000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。",conditions:["中央区内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.chuo.lg.jp/"}],
+      "港区": [{name:"港区 地球温暖化対策助成制度",org:"港区",amount:"太陽光発電：上限40万円\n蓄電池：上限20万円",maxVal:600000,desc:"住宅用太陽光・蓄電池の設置費用を助成。",conditions:["港区内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.minato.tokyo.jp/"}],
+      "新宿区": [{name:"新宿区 省エネルギー及び創エネルギー機器等補助制度",org:"新宿区",amount:"太陽光発電：10万円/kW（上限30万円）\n蓄電池：1万円/kWh（上限10万円）",maxVal:400000,desc:"省エネ・創エネ機器の設置費用を助成。",conditions:["新宿区内の住宅・事業所が対象"],badges:["全世帯対象"],url:"https://www.city.shinjuku.lg.jp/seikatsu/shoenergy.html",note:"令和7年度は予算残り12%（2025年12月時点）"}],
+      "文京区": [{name:"文京区 省エネ設備補助",org:"文京区",amount:"太陽光発電：10万円/kW（上限70万円）\n蓄電池：2万円/kWh（上限20万円）",maxVal:900000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。太陽光の上限額が区内最高水準。",conditions:["文京区内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.bunkyo.lg.jp/"}],
+      "台東区": [{name:"台東区 省エネ設備補助",org:"台東区",amount:"太陽光発電：5万円/kW（上限20万円）\n蓄電池：1万円/kWh（上限10万円）",maxVal:300000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。",conditions:["台東区内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.taito.lg.jp/"}],
+      "墨田区": [{name:"墨田区 省エネ設備補助",org:"墨田区",amount:"太陽光発電：5万円/kW（上限20万円）\n蓄電池：工事費用の10%（上限5万円）",maxVal:250000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。",conditions:["墨田区内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.sumida.lg.jp/"}],
+      "江東区": [{name:"江東区 省エネ設備補助",org:"江東区",amount:"太陽光発電：5万円/kW（上限20万円）\n蓄電池：1万円/kWh（上限10万円）",maxVal:300000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。",conditions:["江東区内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.koto.lg.jp/"}],
+      "品川区": [{name:"品川区 省エネ設備補助",org:"品川区",amount:"太陽光発電：5万円/kW（上限20万円）\n蓄電池：3万円/kWh（上限30万円）",maxVal:500000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。蓄電池の補助額が区内で高水準。",conditions:["品川区内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.shinagawa.tokyo.jp/"}],
+      "目黒区": [{name:"目黒区 省エネ設備補助",org:"目黒区",amount:"太陽光発電：3万円/kW（上限15万円）\n蓄電池：設備本体価格の1/3以下（上限7万円）",maxVal:220000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。",conditions:["目黒区内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.meguro.tokyo.jp/"}],
+      "世田谷区": [{name:"世田谷区 エコ住宅補助金",org:"世田谷区",amount:"太陽光発電：3万円/kW（上限30万円）",maxVal:300000,desc:"エコ住宅補助金。太陽光発電設置には区内事業者との契約が必須条件。",conditions:["世田谷区内の住宅","区内施工業者との契約必須"],badges:["全世帯対象"],url:"https://www.city.setagaya.lg.jp/02240/4777.html"}],
+      "杉並区": [{name:"杉並区 エコ住宅促進助成",org:"杉並区",amount:"太陽光発電：4万円/kW（上限12万円）\n蓄電池：定額5万円",maxVal:170000,desc:"太陽光・蓄電池・エコキュート・エネファーム等が対象。令和7年度から事後申請に変更。",conditions:["杉並区内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.suginami.tokyo.jp/s103/819.html",period:"2025年4月10日〜2026年2月27日"}],
+      "豊島区": [{name:"豊島区 省エネ設備補助",org:"豊島区",amount:"太陽光発電：2万円/kW（上限8万円）\n蓄電池：1万円/kWh（上限5万円）",maxVal:130000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。",conditions:["豊島区内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.toshima.lg.jp/"}],
+      "北区": [{name:"北区 省エネ設備補助",org:"北区",amount:"太陽光発電：8〜9.6万円/kW（上限20〜24万円）\n蓄電池：1〜1.2万円/kWh（上限10〜12万円）",maxVal:360000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。",conditions:["北区内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.kita.tokyo.jp/"}],
+      "練馬区": [{name:"練馬区 カーボンニュートラル化設備設置等補助金",org:"練馬区",amount:"太陽光発電：上限8万円\n蓄電池：上限5万円（太陽光同時設置のみ）",maxVal:130000,desc:"太陽光発電・蓄電池の設置費用を助成。蓄電池は太陽光との同時設置が条件。",conditions:["練馬区内の住宅","新築年月日から1年以上経過"],badges:["全世帯対象"],url:"https://www.city.nerima.tokyo.jp/kurashi/shigoto/kankyo/energyreduction/hojo.html",ended:true,note:"2025年9月5日に予算上限到達で受付終了"}],
+      "足立区": [{name:"足立区 省エネ設備補助",org:"足立区",amount:"太陽光発電：6〜7.2万円/kWまたは経費の1/3\n蓄電池：定額5万円",maxVal:0,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。",conditions:["足立区内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.adachi.tokyo.jp/"}],
+      "葛飾区": [{name:"葛飾区 省エネ設備補助",org:"葛飾区",amount:"太陽光発電：8万円/kW（上限40万円）\n蓄電池：経費の1/4（上限20万円）",maxVal:600000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。太陽光・蓄電池ともに区内で高水準。",conditions:["葛飾区内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.katsushika.lg.jp/"}],
+      "江戸川区": [{name:"江戸川区 省エネ設備補助",org:"江戸川区",amount:"太陽光発電：7.5万円/kW（上限22.5万円）\n蓄電池：経費の1/4（上限20万円）",maxVal:425000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。",conditions:["江戸川区内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.edogawa.tokyo.jp/"}],
+      "八王子市": [{name:"八王子市 省エネ設備補助",org:"八王子市",amount:"太陽光発電：1万円/kW（上限10万円）\n蓄電池：定額3万円",maxVal:130000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。",conditions:["八王子市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.hachioji.tokyo.jp/"}],
+      "府中市": [{name:"府中市 省エネ設備補助",org:"府中市",amount:"太陽光発電：2万円/kW（上限10万円）\n蓄電池：2万円/kWh（上限10万円）",maxVal:200000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。",conditions:["府中市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.fuchu.tokyo.jp/"}],
+      "調布市": [{name:"調布市 省エネ設備補助",org:"調布市",amount:"太陽光発電：2万円/kW（上限10万円）\n蓄電池：定額5万円",maxVal:150000,desc:"住宅用太陽光発電・蓄電池の設置費用を助成。",conditions:["調布市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.chofu.tokyo.jp/"}]
+    }
+  },
+  "神奈川県": {
+    cities: ["横浜市","川崎市","相模原市","藤沢市","横須賀市","厚木市","平塚市","茅ヶ崎市","その他"],
+    prefPrograms: [
+      {name:"神奈川県 住宅用太陽光発電・蓄電池導入費補助金",org:"神奈川県",amount:"太陽光発電：7万円/kW\n蓄電池：15万円/台",maxVal:150000,desc:"太陽光発電と蓄電池の同時導入に対する補助。",conditions:["県内住宅に太陽光発電と蓄電池を同時導入","交付決定前の着手不可"],badges:["全世帯対象"],url:"https://www.pref.kanagawa.jp/docs/ap4/solar_home/taiyoukouchikudenchi.html",ended:true,note:"6月20日消印分で予算到達・受付終了"},
+      {name:"神奈川県 ZEH導入費補助金",org:"神奈川県",amount:"ZEH+/NearlyZEH+：90万円/戸\nZEH/NearlyZEH：55万円/戸\nZEH Oriented：50万円/戸",maxVal:900000,desc:"中小企業が施工するZEHの導入費を補助。",conditions:["中小企業の施工事業者が施工するZEH"],badges:["全世帯対象"],url:"https://www.pref.kanagawa.jp/docs/ap4/cnt/f300183/zeh.html"}
+    ],
+    cityPrograms: {
+      "横浜市": [{name:"横浜グリーンエネルギーパートナーシップ事業",org:"横浜市",amount:"太陽光発電：15,000円分/kW（上限4kW、商品券等）\n蓄電池：150,000円分/戸（商品券等）",maxVal:210000,desc:"太陽光発電・蓄電池設置に対して商品券またはキャッシュレスポイントで付与。",conditions:["横浜市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.yokohama.lg.jp/kurashi/machizukuri-kankyo/ondanka/hojo-sien/YGrEP.html"}],
+      "川崎市": [{name:"川崎市 太陽光発電設備等設置費補助金（たいせつ補助金）",org:"川崎市",amount:"太陽光発電：7万円/kWまたは4万円/件\n蓄電池：10万円/kWh（経費の1/2）",maxVal:0,desc:"太陽光発電・蓄電池・ZEH等の導入費を補助。",conditions:["川崎市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.kawasaki.jp/300/page/0000139049.html"}],
+      "相模原市": [{name:"相模原市 住宅用スマートエネルギー設備等導入奨励金",org:"相模原市",amount:"太陽光発電：8万円\n蓄電池：20万円",maxVal:280000,desc:"太陽光発電・蓄電池・V2H等のスマートエネルギー設備導入に対して奨励金を交付。",conditions:["相模原市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.sagamihara.kanagawa.jp/kurashi/1026489/kankyo/hojyo/1008083.html",period:"申請期限：2026年2月27日必着"}],
+      "藤沢市": [{name:"藤沢市 住宅用太陽光発電システム設置費補助金",org:"藤沢市",amount:"太陽光発電：1.5万円/kW（上限5万円）\n蓄電池：5万円\nZEH住宅：10万円",maxVal:200000,desc:"太陽光・蓄電池・ZEH住宅に対する補助。市内業者施工の場合に加算あり。",conditions:["藤沢市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.fujisawa.kanagawa.jp/"}]
+    }
+  },
+  "新潟県": {
+    cities: ["新潟市","長岡市","上越市","その他"],
+    prefPrograms: [{name:"新潟県雪国型ZEH等導入促進補助金",org:"新潟県環境局環境政策課",amount:"雪国型ZEH：65万円（定額）\n＋太陽光：最大31.5万円\n＋蓄電池：最大25万円\n＋地中熱：最大150万円",maxVal:2715000,desc:"脱炭素化に資する雪国型ZEHや太陽光発電設備等の導入を補助。",conditions:["県内で雪国型ZEH基準を満たす住宅を新築","FIT制度の認定を取得しないこと"],badges:["全世帯対象"],url:"https://www.pref.niigata.lg.jp/sec/kankyoseisaku/0583945.html",ended:true,note:"令和7年10月7日をもって申請受付終了"}],
+    cityPrograms: {}
+  },
+  "富山県": {
+    cities: ["富山市","高岡市","その他"],
+    prefPrograms: [{name:"富山型高性能住宅推進事業費補助金",org:"富山県土木部建築住宅課",amount:"新築チャレンジ水準：10万円\n新築アドバンス水準（子育て若者）：10万円\n新築アドバンス水準（その他）：70万円",maxVal:700000,desc:"ZEH水準を上回る県独自基準（富山型高性能住宅基準）を満たす住宅の工事費等を補助。",conditions:["断熱性能・気密性能等でチャレンジ水準またはアドバンス水準に適合","令和7年4月15日以降に着手"],badges:["全世帯対象"],url:"https://www.pref.toyama.jp/1507/kurashi/seikatsu/sumai/shoene/kouseinou.html"}],
+    cityPrograms: {
+      "富山市": [
+        {name:"公共交通沿線住宅取得支援事業",org:"富山市",amount:"借入金の3%（上限30万円、上乗せ対象は最大50万円）",maxVal:500000,desc:"公共交通沿線での住宅取得を支援。",conditions:["公共交通沿線での住宅取得"],badges:["全世帯対象"],url:"https://www.city.toyama.lg.jp/kurashi/gomi/1010252/1016087.html"},
+        {name:"まちなか居住推進事業費",org:"富山市",amount:"借入金の3/100（上限50万円）",maxVal:500000,desc:"まちなかエリアでの居住を推進するための住宅取得支援。",conditions:["まちなかエリアでの住宅取得"],badges:["全世帯対象"],url:"https://www.city.toyama.lg.jp/kurashi/gomi/1010252/1016087.html"}
+      ]
+    }
+  },
+  "石川県": {
+    cities: ["金沢市","白山市","小松市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "金沢市": [
+        {name:"ようこそ金沢住宅取得奨励金",org:"金沢市",amount:"最大150万円",maxVal:1500000,desc:"金沢市に転入する世帯で、金沢市またはその近郊に勤める場合に交付。",conditions:["10年以上の住宅ローンが条件","金沢市への転入"],badges:["移住者向け"],url:"https://www.pref.ishikawa.lg.jp/kenju/zyutaku_yusi.html"},
+        {name:"わがまち金沢住宅取得奨励金",org:"金沢市",amount:"最大150万円",maxVal:1500000,desc:"現居住地よりもより市内中心部に近い場所に新築する場合に交付。",conditions:["10年以上の住宅ローンが条件"],badges:["全世帯対象"],url:"https://www.pref.ishikawa.lg.jp/kenju/zyutaku_yusi.html"},
+        {name:"木のある暮らしづくり奨励事業",org:"金沢市",amount:"柱1本あたり2,800円（上限25万円）",maxVal:250000,desc:"金沢産材を使用した木造個人住宅の建築に対する奨励金。",conditions:["金沢産材を使用した木造住宅"],badges:["全世帯対象"],url:"https://www.pref.ishikawa.lg.jp/kenju/zyutaku_yusi.html"}
+      ]
+    }
+  },
+  "福井県": {
+    cities: ["福井市","敦賀市","その他"],
+    prefPrograms: [{name:"住み続ける福井支援事業",org:"福井県建築住宅課",amount:"事業内容により異なる",maxVal:0,desc:"空き家購入・改修、老朽住宅の建替、多世代住宅リフォーム等を支援。",conditions:["福井県内の住宅が対象"],badges:["全世帯対象"],url:"https://www.pref.fukui.lg.jp/doc/kenchikujyuutakuka/sumaishien.html"}],
+    cityPrograms: {
+      "福井市": [{name:"福井市 建替住宅取得支援事業",org:"福井市住宅政策課",amount:"30万円",maxVal:300000,desc:"指定居住区域で旧耐震基準住宅を建替える場合の新築住宅取得に補助。",conditions:["指定居住区域","旧耐震基準住宅からの建替"],badges:["全世帯対象"],url:"https://www.city.fukui.lg.jp/sisei/hojyo/kurasi/doukyo_shutoku31.html",ended:true,note:"令和7年度の交付申請受付は終了"}]
+    }
+  },
+  "山梨県": {
+    cities: ["甲府市","甲斐市","南アルプス市","その他"],
+    prefPrograms: [
+      {name:"やまなしKAITEKI住宅認定補助金",org:"山梨県建築住宅課",amount:"10万円～40万円",maxVal:400000,desc:"やまなしKAITEKI住宅の認定を受けた住宅に対する補助。",conditions:["やまなしKAITEKI住宅の認定を取得"],badges:["全世帯対象"],url:"https://www.pref.yamanashi.jp/kenchikujutaku/kikaku/kaitekihouse.html",period:"令和7年10月1日より受付開始"},
+      {name:"クリーンエネルギー機器普及助成金制度",org:"山梨県",amount:"太陽光+蓄電池同時設置：10万円\n木質ペレットストーブ：3万円",maxVal:100000,desc:"住宅用太陽光発電とリチウムイオン蓄電池の同時設置への助成。",conditions:["太陽光発電と蓄電池の同時設置"],badges:["全世帯対象"],url:"https://www.pref.yamanashi.jp/kenchikujutaku/kunishouenehojokin.html"}
+    ],
+    cityPrograms: {}
+  },
+  "長野県": {
+    cities: ["長野市","松本市","上田市","飯田市","その他"],
+    prefPrograms: [{name:"信州健康ゼロエネ住宅助成金（新築タイプ）",org:"長野県建設部建築住宅課",amount:"20万円～最大200万円\n最低基準（再エネあり）：30万～100万円\n推奨基準（再エネあり）：110万～180万円\n先導基準（再エネあり）：130万～200万円\n＋選択項目加算（上限70万円）",maxVal:2000000,desc:"環境負荷が少なく高断熱性能を有し県産木材を活用した住宅の新築工事費用の一部を助成。",conditions:["信州健康ゼロエネ住宅指針の基準に適合","県産木材を活用すること"],badges:["全世帯対象"],url:"https://www.shinshu0ene.jp/support/new.html",period:"第1期: R7年4月15日～R8年2月15日"}],
+    cityPrograms: {
+      "長野市": [{name:"長野市温暖化対策推進補助金",org:"長野市",amount:"設備により異なる",maxVal:0,desc:"市内住宅・事業所への再生可能エネルギー・省エネルギー機器の導入を支援。",conditions:["長野市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.nagano.nagano.jp/n182500/contents/p006201.html",period:"2025年4月7日～2026年1月31日"}],
+      "松本市": [{name:"住まいのゼロカーボン推進補助金",org:"松本市環境エネルギー課",amount:"設備により異なる",maxVal:0,desc:"住宅に創エネ・蓄エネ・省エネ設備を設置した方に補助金を交付。",conditions:["松本市内の住宅が対象"],badges:["全世帯対象"],url:"https://www.city.matsumoto.nagano.jp/soshiki/85/4406.html"}]
+    }
+  },
+  "岐阜県": {
+    cities: ["岐阜市","大垣市","各務原市","その他"],
+    prefPrograms: [
+      {name:"脱炭素社会ぎふモデル住宅普及事業費補助金",org:"岐阜県住宅課",amount:"金額は要確認",maxVal:0,desc:"高省エネ性能を有する住宅の新築を支援。",conditions:["令和7年4月1日以降の契約が対象"],badges:["全世帯対象"],url:"https://www.pref.gifu.lg.jp/page/282403.html"},
+      {name:"ぎふの木で家づくり支援事業",org:"岐阜県林政部県産材流通課",amount:"15万円～最大32万円",maxVal:320000,desc:"岐阜県産材を使用した住宅新築に対する補助。",conditions:["岐阜県産材を使用した住宅新築"],badges:["全世帯対象"],url:"https://www.pref.gifu.lg.jp/page/8700.html"}
+    ],
+    cityPrograms: {
+      "岐阜市": [{name:"岐阜市中心市街地新築住宅取得助成事業",org:"岐阜市",amount:"最大90万円（子育て世帯加算あり）",maxVal:900000,desc:"中心市街地で新築住宅を取得・定住する世帯に助成金を支給。",conditions:["中心市街地で新築住宅を取得・定住"],badges:["全世帯対象","子育て世帯限定"],url:"https://www.city.gifu.lg.jp/info/hojokin/1005688.html"}]
+    }
+  },
+  "静岡県": {
+    cities: ["静岡市","浜松市","磐田市","沼津市","富士市","藤枝市","掛川市","焼津市","島田市","湖西市","菊川市","袋井市","その他"],
+    prefPrograms: [
+      {name:"令和7年度 省エネ住宅新築等補助制度",org:"静岡県くらし・環境部建築住宅局",amount:"基本40万円＋県産材加算最大30万円\n＋森林認証材加算最大10万円\n＝最大80万円",maxVal:800000,desc:"ZEH水準以上の省エネ性能を備えた新築住宅に補助金を交付。",conditions:["ZEH水準の省エネ性能","県内中小工務店が施工（年間50戸未満）","一戸建て住宅","国の子育てグリーン住宅支援事業の対象外世帯"],badges:["全世帯対象"],url:"https://www.pref.shizuoka.jp/kurashikankyo/kenchiku/garden/1071708.html",ended:true,note:"令和7年度は受付終了済み（予算上限到達）"},
+      {name:"住んでよし しずおか木の家推進事業",org:"静岡県森林組合連合会",amount:"最大40万円\n（木材補助30万円＋森林認証材加算10万円）",maxVal:400000,desc:"品質の確かな県産材製品を使った住宅の新築・増改築に補助。",conditions:["しずおか優良木材等を一定量以上使用"],badges:["全世帯対象"],url:"https://www.s-kenmori.net/kinoie/"}
+    ],
+    cityPrograms: {
+      "磐田市": [
+        {name:"磐田市新エネルギー及び省エネルギー設備普及促進奨励金",org:"磐田市環境水道部環境課",amount:"太陽光：2万円、蓄電池：2万円\n太陽熱：1万円、エネファーム：1万円\nHEMS：1万円（複数合算可能）",maxVal:70000,desc:"温室効果ガス排出量削減のため、設備設置者に奨励金を支給。",conditions:["市内の自己所有住宅に設備を設置","1世帯あたり各機種1基限り"],badges:["全世帯対象"],url:"https://www.city.iwata.shizuoka.jp/kurashi_tetsuzuki/kankyou_hozen/kankyou/1001493.html",period:"令和7年4月1日～令和7年10月30日"},
+        {name:"結婚新生活支援事業助成金",org:"磐田市",amount:"基本上限30万円/世帯\n若年加算（夫婦ともに29歳以下）：60万円/世帯",maxVal:600000,desc:"新婚世帯の新生活スタートにかかる住居費・引越費用を支援。",conditions:["2025年1月1日以降に婚姻届提出","夫婦ともに婚姻時点で39歳以下","夫婦の前年所得合計500万円未満"],badges:["若者夫婦世帯"],url:"https://www.city.iwata.shizuoka.jp/kurashi_tetsuzuki/1010694/1010696.html"}
+      ],
+      "浜松市": [
+        {name:"浜松市スマートハウス・次世代自動車補助金",org:"浜松市産業部カーボンニュートラル推進課",amount:"蓄電池：8万円、V2H：8万円\nエネファーム：5万円、太陽熱：2万円\n太陽光（蓄電池同時）：2万円",maxVal:250000,desc:"スマートハウス関連設備・次世代自動車の購入費を一部補助。",conditions:["2025年3月16日～2026年3月15日の間に購入"],badges:["全世帯対象"],url:"https://www.city.hamamatsu.shizuoka.jp/shin-ene/smart_hojyo/hojokin.html",ended:true,note:"受付終了済み"},
+        {name:"天竜材の家 百年住居る助成事業",org:"浜松地域材利用促進協議会",amount:"FSC認証材使用：2万円/㎥（上限40万円）\nCOC認証取得工務店加算：10万円\n最大50万円",maxVal:500000,desc:"FSC認証材（天竜材）を使用した住宅の新築・増築を支援。",conditions:["浜松市内に新築・増築する自己居住用住宅","FSC認証材を使用","66㎡以上の居住面積"],badges:["全世帯対象"],url:"https://www.city.hamamatsu.shizuoka.jp/ringyou/shinko/forestry/ringyou/index.html"},
+        {name:"ハマライフ住宅取得費等助成事業費補助金",org:"浜松市",amount:"最大100万円",maxVal:1000000,desc:"市外から浜松市に移住する方の住宅取得費・引越移転費用を補助。",conditions:["市外からの移住者"],badges:["移住者向け"],url:"https://www.city.hamamatsu.shizuoka.jp/hamalife/oshirase/hamalifejyutakusyutokuhitouhojyokin.html",ended:true,note:"令和7年度の申請受付は終了"}
+      ],
+      "静岡市": [{name:"静岡市移住者住宅確保応援補助金",org:"静岡市",amount:"東京圏からの移住：最大400万円\nその他県外：最大200万円\n（世帯100万円＋子ども加算100万円/人）",maxVal:4000000,desc:"静岡県外から転入した方の住宅取得等を支援。中山間地域は補助率3/4。",conditions:["令和7年1月1日以降に静岡県外から転入"],badges:["移住者向け"],url:"https://www.city.shizuoka.lg.jp/ijuteiju/s000081.html"}],
+      "沼津市": [{name:"個人向け新築住宅ZEH化事業",org:"沼津市環境政策課",amount:"55万円/戸\nCLT導入の場合は+90万円/戸上乗せ",maxVal:1450000,desc:"ZEH性能を有する新築住宅の建築主・購入者に対する補助。",conditions:["新築戸建住宅の建築主または購入予定者","事業着手予定日の14日前までに申請"],badges:["全世帯対象"],url:"https://www.city.numazu.shizuoka.jp/kurashi/sumai/kankyo/hojyo/juten_kojin.htm"}],
+      "富士市": [
+        {name:"富士地域材使用住宅取得費補助金（富士ヒノキの家）",org:"富士市",amount:"4㎥以上：20万円\n6㎥以上：30万円\n16㎥以上：50万円",maxVal:500000,desc:"富士地域材を使用し市内に住宅を新築・増築する方に補助。",conditions:["富士地域材（富士市産・富士宮市産）を使用"],badges:["全世帯対象"],url:"https://www.city.fuji.shizuoka.jp/kurashi/sumai/hojo/index.html"},
+        {name:"はぐくむFUJI 結婚新生活支援補助金",org:"富士市",amount:"最大60万円",maxVal:600000,desc:"新婚世帯の住居費・引越費用を支援。",conditions:["夫婦のいずれかが39歳以下","2025年1月1日以降に婚姻"],badges:["若者夫婦世帯"],url:"https://www.city.fuji.shizuoka.jp/kurashi/sumai/hojo/index.html"}
+      ],
+      "藤枝市": [{name:"子育てファミリー移住定住促進事業費補助金",org:"藤枝市",amount:"住宅取得補助：最大50万円\n三世代加算：30万円\n引越費用：最大50万円\n合計最大130万円",maxVal:1300000,desc:"子育て世帯の新築住宅建築・購入に要する経費を助成。",conditions:["子育て世帯（市外からの転入者優遇）"],badges:["子育て世帯限定","移住者向け"],url:"https://www.city.fujieda.shizuoka.jp/soshiki/toshikensetsu/akiya/gyomu/hojyokin/1450661881654.html"}],
+      "掛川市": [
+        {name:"子育て世代向け認定住宅供給事業補助金",org:"掛川市",amount:"最大35万円（経費の1/2以内）",maxVal:350000,desc:"子育て世代向け認定住宅の新築等に係る経費を補助。",conditions:["子育て世代向け認定住宅を新築等","工事完了後に申請"],badges:["子育て世帯限定"],url:"https://www.city.kakegawa.shizuoka.jp/gyosei/docs/8492.html"},
+        {name:"結婚新生活支援事業費補助金",org:"掛川市こども政策課",amount:"最大60万円",maxVal:600000,desc:"新婚世帯の住居費・引越費用の一部を補助。",conditions:["新婚世帯"],badges:["若者夫婦世帯"],url:"https://www.city.kakegawa.shizuoka.jp/kakekko/docs/303942.html",period:"令和7年6月16日～令和8年3月13日"}
+      ],
+      "島田市": [{name:"地域木材利用促進事業費補助金",org:"島田市",amount:"大井川流域産材使用量に応じた金額",maxVal:0,desc:"大井川流域産材を使用し特定建築業者により建築工事を行う方に補助。",conditions:["大井川流域産材を使用"],badges:["全世帯対象"],url:"https://www.city.shimada.shizuoka.jp/kurashi/tetuduki/sumai/zyutakuhozyo/"}],
+      "湖西市": [{name:"住もっか「こさい」定住促進奨励金",org:"湖西市",amount:"基本10万円＋各種加算で最大100万円\n（移住加算、市内勤務加算、子ども加算等）",maxVal:1000000,desc:"市内に住宅を建築・購入した方に奨励金を交付。",conditions:["単身40歳未満、夫婦合計年齢80歳未満","保存登記から6ヵ月以内に申請"],badges:["若者夫婦世帯"],url:"https://www.city.kosai.shizuoka.jp/kosai_saiko/hojoseido/6391.html"}],
+      "菊川市": [
+        {name:"菊川市若者世帯定住促進補助金",org:"菊川市都市計画課",amount:"通常：上限25万円\n三世代同居・隣接：上限40万円",maxVal:400000,desc:"若者世帯及び子育て世帯の住宅取得費用の一部を補助。",conditions:["菊川市に定住するために住宅を取得","住民票移動から6ヵ月以内に申請"],badges:["若者夫婦世帯","子育て世帯限定"],url:"https://www.city.kikugawa.shizuoka.jp/toshikeikaku/jyuutakuhojyo.html",period:"令和7年4月4日～令和8年3月31日"},
+        {name:"菊川市結婚新生活支援事業費補助金",org:"菊川市企画政策課",amount:"最大60万円",maxVal:600000,desc:"新婚世帯の住居購入・賃貸、引越費用、リフォーム費用を補助。",conditions:["新婚世帯"],badges:["若者夫婦世帯"],url:"https://www.city.kikugawa.shizuoka.jp/kikakuseisaku/kekkonshinseikatsushien.html"}
+      ]
+    }
+  },
+  "愛知県": {
+    cities: ["名古屋市","豊橋市","岡崎市","豊田市","一宮市","春日井市","豊川市","その他"],
+    prefPrograms: [{name:"愛知県住宅用地球温暖化対策設備導入促進費補助金",org:"愛知県環境局地球温暖化対策課",amount:"市町村により異なる（協調補助）",maxVal:0,desc:"太陽光・HEMS・燃料電池・蓄電池・V2H等の導入費用を市町村を通じて補助。",conditions:["各市町村により募集期間・金額が異なる"],badges:["全世帯対象"],url:"https://www.pref.aichi.jp/soshiki/ondanka/0000004471.html"}],
+    cityPrograms: {
+      "名古屋市": [{name:"名古屋市住宅等の脱炭素化促進補助金",org:"名古屋市環境局",amount:"ZEH新築：10万円\nZEH+・LCCM住宅：20万円\n蓄電池（ZEH同時）：1.5万円/kWh\n太陽光（新築戸建）：1万円/kW",maxVal:200000,desc:"市内にZEH等の戸建住宅を建築・購入する方に対し補助。",conditions:["名古屋市内に戸建住宅を建築または新築住宅を購入","国のZEH等補助の交付対象であること","交付決定前の工事着手は不可"],badges:["全世帯対象"],url:"https://www.city.nagoya.jp/kankyo/page/0000138396.html",ended:true,note:"令和7年8月12日時点で受付終了"}],
+      "豊橋市": [{name:"豊橋市歩いて暮らせるまち区域定住促進事業費補助金",org:"豊橋市",amount:"固定資産税相当額（最大3年間）\n＋子育て応援奨励金（子ども1人10万円）",maxVal:0,desc:"市外から「歩いて暮らせるまち区域」への転入者に対し固定資産税と子育て奨励金を助成。",conditions:["歩いて暮らせるまち区域への新規居住"],badges:["移住者向け","子育て世帯限定"],url:"https://www.city.toyohashi.lg.jp/37006.htm"}],
+      "岡崎市": [{name:"岡崎市産材住宅建設事業費補助金",org:"岡崎市森林課",amount:"市産材1㎥あたり2.5万円（上限30万円）\n内装材1㎡あたり5千円（上限20万円）\n合算上限：30万円",maxVal:300000,desc:"岡崎市内で伐採された木材を使用した戸建住宅の新築に補助。",conditions:["主要構造材に岡崎市産材を1㎥以上使用","市内で建築業を営む事業者が施工"],badges:["全世帯対象"],url:"https://www.city.okazaki.lg.jp/1300/1303/1324/p021294.html"}]
+    }
+  },
+  "三重県": {
+    cities: ["津市","四日市市","鈴鹿市","松阪市","その他"],
+    prefPrograms: [{name:"三重の木認証材使用木造住宅建設事業補助金",org:"三重県農林水産部",amount:"三重の木認証材使用量に応じた金額",maxVal:0,desc:"三重県産の認証木材を使用した新築木造住宅に対する補助。",conditions:["三重の木認証材を使用した新築木造住宅"],badges:["全世帯対象"],url:"https://www.pref.mie.lg.jp/JUTAKU/HP/35842031372.htm"}],
+    cityPrograms: {}
+  },
+  "滋賀県": {
+    cities: ["大津市","草津市","長浜市","彦根市","その他"],
+    prefPrograms: [],
+    cityPrograms: {}
+  },
+  "京都府": {
+    cities: ["京都市","宇治市","舞鶴市","その他"],
+    prefPrograms: [{name:"京都府再生可能エネルギー導入等促進事業費補助金",org:"京都府地球温暖化防止活動推進センター",amount:"基本15万円、条件加算で最大40万円",maxVal:400000,desc:"高断熱・高気密な省エネ住宅を新築・購入する費用の一部を補助。",conditions:["省エネ基準適合住宅の新築・購入","2026年2月20日までの引渡し完了"],badges:["全世帯対象"],url:"https://miyakoanshinsumai.com/column/column-3484/"}],
+    cityPrograms: {}
+  },
+  "大阪府": {
+    cities: ["大阪市","堺市","東大阪市","豊中市","吹田市","枚方市","高槻市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "大阪市": [{name:"大阪市新婚・子育て世帯向け分譲住宅購入融資利子補給制度",org:"大阪市都市整備局",amount:"最大50万円（年間最大10万円x最長5年間）\n利子補給率：年0.5%以内",maxVal:500000,desc:"初めて住宅を取得する新婚世帯または子育て世帯を対象に住宅ローンに対する利子補給。",conditions:["初めて住宅を取得すること","住宅ローンを利用していること"],badges:["子育て世帯限定","若者夫婦世帯"],url:"https://www.city.osaka.lg.jp/toshiseibi/page/0000110240.html"}],
+      "堺市": [
+        {name:"堺市スマートハウス化支援事業補助金",org:"堺市環境局",amount:"太陽光発電システム：4万円\n電気自動車：4万円",maxVal:80000,desc:"市内の戸建て住宅等に太陽光発電システムを導入した場合に補助。",conditions:["市内の戸建て住宅に太陽光発電システムを導入"],badges:["全世帯対象"],url:"https://www.city.sakai.lg.jp/kurashi/gomi/ondanka/smarthouse/sumarthouse/index.html"},
+        {name:"堺市ZEH支援事業補助金",org:"堺市環境局",amount:"ZEHの費用一部補助（金額は要問い合わせ）",maxVal:0,desc:"市内においてZEHを取得する場合に費用の一部を補助。",conditions:["ZEHまたはZEH+の基準を満たす住宅を新築"],badges:["全世帯対象"],url:"https://www.city.sakai.lg.jp/kurashi/gomi/ondanka/smarthouse/sumarthouse/index.html"}
+      ]
+    }
+  },
+  "兵庫県": {
+    cities: ["神戸市","姫路市","西宮市","尼崎市","明石市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "神戸市": [{name:"神戸市住みかえーる（住みかえ支援制度）",org:"神戸市都市局住宅政策課",amount:"親世帯と近居・同居：35万円\nその他：30万円",maxVal:350000,desc:"若年夫婦・子育て世帯の住みかえを応援する制度。",conditions:["若年夫婦世帯または子育て世帯であること"],badges:["子育て世帯限定","若者夫婦世帯"],url:"https://www.city.kobe.lg.jp/a01110/kurashi/sumai/jutaku/information/shinkonportal/"}]
+    }
+  },
+  "奈良県": {
+    cities: ["奈良市","橿原市","生駒市","その他"],
+    prefPrograms: [],
+    cityPrograms: {}
+  },
+  "和歌山県": {
+    cities: ["和歌山市","田辺市","その他"],
+    prefPrograms: [],
+    cityPrograms: {}
+  },
+  "鳥取県": {
+    cities: ["鳥取市","米子市","その他"],
+    prefPrograms: [],
+    cityPrograms: {}
+  },
+  "島根県": {
+    cities: ["松江市","出雲市","その他"],
+    prefPrograms: [{name:"しまね脱炭素加速化支援",org:"島根県土木部建築住宅課",amount:"高断熱省エネ住宅・再エネ設備導入への補助",maxVal:0,desc:"高断熱の省エネ住宅や太陽光・蓄電池等の再エネ設備を導入する家庭に補助。",conditions:["高断熱省エネ住宅の新築または再エネ設備の導入"],badges:["全世帯対象"],url:"https://www.pref.shimane.lg.jp/infra/build/jutaku/shien/"}],
+    cityPrograms: {
+      "松江市": [{name:"松江市子育て世帯定住団地取得支援補助金",org:"松江市役所",amount:"最大150万円（市外転入で加算あり）",maxVal:1500000,desc:"市が指定した分譲団地を購入し住宅を建てる場合に補助金を交付。",conditions:["市指定の分譲団地を購入し住宅を建設"],badges:["子育て世帯限定"],url:"https://www.city.matsue.lg.jp/gyoseijoho/hojyokin/index.html"}]
+    }
+  },
+  "岡山県": {
+    cities: ["岡山市","倉敷市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "岡山市": [{name:"岡山市住宅用スマートエネルギー導入促進補助事業",org:"岡山市環境局温暖化対策課",amount:"スマートエネルギー機器導入費用の一部助成",maxVal:0,desc:"市内住宅にスマートエネルギー化に資する機器を導入した方に経費の一部を助成。",conditions:["岡山市内の住宅にスマートエネルギー機器を導入"],badges:["全世帯対象"],url:"https://www.city.okayama.jp/ondankataisaku/0000042045.html"}]
+    }
+  },
+  "広島県": {
+    cities: ["広島市","福山市","呉市","その他"],
+    prefPrograms: [],
+    cityPrograms: {}
+  },
+  "山口県": {
+    cities: ["山口市","下関市","周南市","その他"],
+    prefPrograms: [{name:"山口県ZEH啓発・導入支援補助制度",org:"山口県土木建築部住宅課",amount:"ZEH導入支援（金額は要問い合わせ）",maxVal:0,desc:"山口県がZEHの普及促進のため導入支援を実施。",conditions:["ZEH基準を満たす住宅の新築"],badges:["全世帯対象"],url:"https://www.pref.yamaguchi.lg.jp/site/zeh/"}],
+    cityPrograms: {}
+  },
+  "徳島県": {
+    cities: ["徳島市","阿南市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "徳島市": [{name:"徳島市再生可能エネルギー利用促進補助金",org:"徳島市役所 環境政策課",amount:"太陽光発電・蓄電池・V2Hそれぞれ最大5万円",maxVal:150000,desc:"住宅における再生可能エネルギーの利用促進のための補助。",conditions:["徳島市内の住宅に再エネ設備を導入"],badges:["全世帯対象"],url:"https://house.goo.ne.jp/chiiki/kurashi/tokushima/36201.html"}]
+    }
+  },
+  "香川県": {
+    cities: ["高松市","丸亀市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "高松市": [{name:"高松市住宅取得支援事業補助金",org:"高松市都市整備局住宅政策課",amount:"20万円",maxVal:200000,desc:"居住誘導区域外から区域内に移り新築住宅を取得した世帯に補助金を交付。",conditions:["フラット35地域連携型およびフラット35S利用","居住誘導区域内の住宅","5年以上居住の誓約"],badges:["全世帯対象"],url:"https://www.city.takamatsu.kagawa.jp/smph/kurashi/shinotorikumi/machidukuri/toshi/compact/yutakana/flat35.html"}]
+    }
+  },
+  "愛媛県": {
+    cities: ["松山市","今治市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "松山市": [{name:"松山市ゼロカーボン推進補助金",org:"松山市環境部",amount:"太陽光発電・蓄電池等の導入費用一部補助",maxVal:0,desc:"太陽光発電システムや住宅用蓄電池システム等の導入を補助。",conditions:["松山市内の住宅に太陽光発電等を導入"],badges:["全世帯対象"],url:"https://www.city.matsuyama.ehime.jp/kurashi/kurashi/hojokin/index.html"}]
+    }
+  },
+  "高知県": {
+    cities: ["高知市","南国市","その他"],
+    prefPrograms: [{name:"こうちの木の住まいづくり助成事業",org:"高知県土木部住宅課",amount:"上限80万円",maxVal:800000,desc:"高知県産の木材を利用して新築住宅を建てる場合に助成金を交付。",conditions:["高知県産木材を利用した新築住宅"],badges:["全世帯対象"],url:"https://www.pref.kochi.lg.jp/doc/2024031200121/"}],
+    cityPrograms: {}
+  },
+  "福岡県": {
+    cities: ["福岡市","北九州市","久留米市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "福岡市": [{name:"福岡市住宅用エネルギーシステム導入支援事業",org:"福岡市環境局",amount:"2025年度予算：2億6,950万円（個別金額は要問い合わせ）",maxVal:0,desc:"住宅用太陽光発電システム等の導入支援事業。",conditions:["福岡市内の住宅にエネルギーシステムを導入"],badges:["全世帯対象"],url:"https://aerahome.com/column/homeloan/250820134/"}],
+      "北九州市": [{name:"住むなら北九州 定住・移住推進事業",org:"北九州市建築都市局住宅課",amount:"最大50万円（家族1人につき15万円）\n空き家リノベーション併用で最大100万円",maxVal:1000000,desc:"市外から北九州市に移住する世帯を対象に住宅取得費用の一部を補助。",conditions:["市外から北九州市に移住すること"],badges:["移住者向け","子育て世帯限定"],url:"https://www.city.kitakyushu.lg.jp/contents/07400243.html"}]
+    }
+  },
+  "佐賀県": {
+    cities: ["佐賀市","唐津市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "佐賀市": [{name:"地方創生移住支援事業（移住支援金）",org:"佐賀市役所",amount:"世帯100万円（子ども1人100万円加算）\n単身60万円",maxVal:1000000,desc:"県外から佐賀県に移住する場合の支援金。",conditions:["県外（東京圏等）から佐賀県へ移住"],badges:["移住者向け"],url:"https://house.goo.ne.jp/chiiki/kurashi/saga/"}]
+    }
+  },
+  "長崎県": {
+    cities: ["長崎市","佐世保市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "長崎市": [{name:"長崎市3世代同居・近居支援制度",org:"長崎市住宅政策室",amount:"費用の5分の1以内",maxVal:0,desc:"3世代の同居・近居を始めるために住宅を新築・改修・購入する場合に補助。",conditions:["3世代同居・近居を始めること"],badges:["子育て世帯限定"],url:"https://www.city.nagasaki.lg.jp/page/5793.html"}]
+    }
+  },
+  "熊本県": {
+    cities: ["熊本市","八代市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "熊本市": [{name:"熊本市省エネルギー機器等導入推進事業補助金",org:"熊本市環境局",amount:"ZEH：15万円/件\nエネファーム：8万円/件",maxVal:150000,desc:"省エネ機器等を導入する住宅に対する補助。",conditions:["ZEH仕様の住宅を新築、または省エネ機器を導入"],badges:["全世帯対象"],url:"https://www.city.kumamoto.jp/kiji00357588/index.html"}]
+    }
+  },
+  "大分県": {
+    cities: ["大分市","別府市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "大分市": [{name:"大分市子育て・高齢者世帯向け住宅補助金",org:"大分市役所建築住宅課",amount:"最大75万円",maxVal:750000,desc:"子育て世帯や高齢者世帯向けに住宅取得・改修に対して補助金を交付。",conditions:["子育て世帯または高齢者世帯であること"],badges:["子育て世帯限定"],url:"https://house.goo.ne.jp/chiiki/kurashi/ooita/44201.html"}]
+    }
+  },
+  "宮崎県": {
+    cities: ["宮崎市","都城市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "宮崎市": [{name:"宮崎市移住支援給付金",org:"宮崎市役所",amount:"最大200万円",maxVal:2000000,desc:"県外から宮崎市内へ移住し就業や起業をされた方を対象に支給。",conditions:["県外からの移住","対象となる就業先への就職または起業"],badges:["移住者向け"],url:"https://www.pref.miyazaki.lg.jp/kenchikujutaku/kurashi/shakaikiban/page00280.html"}]
+    }
+  },
+  "鹿児島県": {
+    cities: ["鹿児島市","霧島市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "鹿児島市": [
+        {name:"鹿児島市太陽光発電システム等導入補助金",org:"鹿児島市建設局建築部建築指導課",amount:"最大22万円",maxVal:220000,desc:"新築住宅に太陽光発電システム等を新設する場合に補助金を交付。",conditions:["新築住宅に太陽光発電システム等を新設"],badges:["全世帯対象"],url:"https://www.city.kagoshima.lg.jp/kensetu/kenchiku/kenshido/sutokkukannrenn.html"},
+        {name:"鹿児島市子育て世帯住替え支援補助金",org:"鹿児島市建設局建築部住宅課",amount:"要問い合わせ",maxVal:0,desc:"子育て世帯が住替えのために住宅を建設・購入する場合に補助。",conditions:["転居後5か月以内の申請"],badges:["子育て世帯限定"],url:"https://www.city.kagoshima.lg.jp/kensetu/kenchiku/jutaku/kosodatesumikaeshien/kosodatesumikaehojyo.html"}
+      ]
+    }
+  },
+  "沖縄県": {
+    cities: ["那覇市","沖縄市","宜野湾市","その他"],
+    prefPrograms: [],
+    cityPrograms: {
+      "那覇市": [{name:"那覇市都市景観助成金",org:"那覇市まちなみ整備課",amount:"費用の2/3以内、上限100万円",maxVal:1000000,desc:"首里金城・龍潭通り・壺屋の景観形成地域で赤瓦屋根等の対象資材を使用する場合に助成。",conditions:["指定景観形成地域内の住宅","対象資材（赤瓦等）を使用"],badges:["全世帯対象"],url:"https://www.city.naha.okinawa.jp/kurasitetuduki/life/sumai/sien/SN_model.html",note:"指定地区内のみ対象"}]
+    }
+  }
+};
+
+// ============================================================
+// 初期化
+// ============================================================
+const prefList = ["北海道","青森県","岩手県","宮城県","秋田県","山形県","福島県","茨城県","栃木県","群馬県","埼玉県","千葉県","東京都","神奈川県","新潟県","富山県","石川県","福井県","山梨県","長野県","岐阜県","静岡県","愛知県","三重県","滋賀県","京都府","大阪府","兵庫県","奈良県","和歌山県","鳥取県","島根県","岡山県","広島県","山口県","徳島県","香川県","愛媛県","高知県","福岡県","佐賀県","長崎県","熊本県","大分県","宮崎県","鹿児島県","沖縄県"];
+
+const prefSelect = document.getElementById('pref');
+prefList.forEach(function(p) {
+  var opt = document.createElement('option');
+  opt.value = p;
+  opt.textContent = p;
+  prefSelect.appendChild(opt);
+});
+
+function updateCities() {
+  var citySelect = document.getElementById('city');
+  var pref = document.getElementById('pref').value;
+  citySelect.innerHTML = '';
+  if (!pref) {
+    citySelect.disabled = true;
+    citySelect.innerHTML = '<option value="">先に都道府県を選択してください</option>';
+    return;
+  }
+  citySelect.disabled = false;
+  var opt0 = document.createElement('option');
+  opt0.value = '';
+  opt0.textContent = '市区町村を選択（任意）';
+  citySelect.appendChild(opt0);
+  var data = prefData[pref];
+  if (data && data.cities) {
+    data.cities.forEach(function(c) {
+      var opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      citySelect.appendChild(opt);
+    });
+  }
+}
+
+function getBadgeClass(badge) {
+  if (badge.indexOf('全世帯') >= 0) return 'badge-all';
+  if (badge.indexOf('子育て') >= 0) return 'badge-child';
+  if (badge.indexOf('若者') >= 0 || badge.indexOf('夫婦') >= 0) return 'badge-young';
+  if (badge.indexOf('移住') >= 0) return 'badge-migrate';
+  return 'badge-all';
+}
+
+function renderCard(item, cardClass) {
+  var html = '<div class="card ' + cardClass + '">';
+  html += '<div class="card-name">' + item.name + '</div>';
+  html += '<div class="card-org">' + item.org + '</div>';
+  if (item.badges) {
+    item.badges.forEach(function(b) {
+      html += '<span class="badge ' + getBadgeClass(b) + '">' + b + '</span>';
+    });
+  }
+  var amountClass = (cardClass === 'tax' || cardClass === 'rate') ? 'green' : '';
+  html += '<div class="card-amount ' + amountClass + '">' + (item.amount || '').replace(/\n/g, '<br>') + '</div>';
+  html += '<div class="card-desc">' + item.desc + '</div>';
+  if (item.conditions && item.conditions.length) {
+    html += '<div class="card-conditions">';
+    item.conditions.forEach(function(c) {
+      html += '<div class="cond-item">' + c + '</div>';
+    });
+    html += '</div>';
+  }
+  if (item.note) html += '<div class="card-note">' + item.note + '</div>';
+  if (item.period) html += '<div class="card-period">申請期間: ' + item.period + '</div>';
+  if (item.url) html += '<a href="' + item.url + '" target="_blank" rel="noopener" class="btn-official">公式サイトで確認 &rarr;</a>';
+  html += '</div>';
+  return html;
+}
+
+function renderGroupTitle(title, count, cls) {
+  return '<div class="result-group-title ' + cls + '">' + title + '<span class="result-group-count">' + count + '件</span></div>';
+}
+
+function showLoading(pref, city) {
+  var overlay = document.getElementById('loading-overlay');
+  var detail = document.getElementById('loading-detail');
+  overlay.classList.add('active');
+  setTimeout(function() { detail.textContent = pref + 'の都道府県データを照合中...'; }, 400);
+  if (city) {
+    setTimeout(function() { detail.textContent = city + 'の市区町村データを照合中...'; }, 1000);
+  }
+  setTimeout(function() { detail.textContent = '国の補助金制度を照合中...'; }, 1500);
+}
+
+function hideLoading() {
+  document.getElementById('loading-overlay').classList.remove('active');
+}
+
+function searchSubsidies() {
+  var pref = document.getElementById('pref').value;
+  if (!pref) { alert('都道府県を選択してください'); return; }
+  var city = document.getElementById('city').value;
+
+  // ローディング表示
+  showLoading(pref, city);
+
+  // 2秒後に結果表示（データ照合の体感を演出）
+  setTimeout(function() {
+    buildResults(pref, city);
+    hideLoading();
+  }, 2200);
+}
+
+function buildResults(pref, city) {
+  var data = prefData[pref] || { prefPrograms: [], cityPrograms: {} };
+  var total = 0;
+
+  // === 都道府県の制度（最上部に表示） ===
+  var prefHtml = '';
+  var prefProgs = (data.prefPrograms || []).filter(function(s) { return !s.ended; });
+  if (prefProgs.length > 0) {
+    prefHtml += renderGroupTitle(pref + 'の補助金・助成制度', prefProgs.length, 'pref');
+    prefProgs.forEach(function(s) { prefHtml += renderCard(s, 'pref'); });
+    prefProgs.forEach(function(s) { if (s.maxVal > 0) total += s.maxVal; });
+  }
+  document.getElementById('result-pref').innerHTML = prefHtml;
+
+  // === 市区町村の制度 ===
+  var cityHtml = '';
+  var cityCount = 0;
+  if (city && city !== 'その他' && data.cityPrograms && data.cityPrograms[city]) {
+    var progs = data.cityPrograms[city].filter(function(s) { return !s.ended; });
+    if (progs.length > 0) {
+      cityHtml += renderGroupTitle(city + 'の補助金・助成制度', progs.length, 'city');
+      progs.forEach(function(s) { cityHtml += renderCard(s, 'city'); });
+      cityCount = progs.length;
+      var maxCityVal = 0;
+      progs.forEach(function(s) { if (s.maxVal > 0) maxCityVal = Math.max(maxCityVal, s.maxVal); });
+      total += maxCityVal;
+    }
+  } else if (data.cityPrograms) {
+    // 市区町村未選択→県内全データ表示
+    var allCityProgs = [];
+    Object.keys(data.cityPrograms).forEach(function(cityName) {
+      var progs = data.cityPrograms[cityName].filter(function(s) { return !s.ended; });
+      if (progs.length > 0) {
+        allCityProgs.push({ name: cityName, progs: progs });
+      }
+    });
+    if (allCityProgs.length > 0) {
+      var totalCityCount = 0;
+      allCityProgs.forEach(function(g) { totalCityCount += g.progs.length; });
+      cityHtml += renderGroupTitle(pref + '内 市区町村の補助金・助成制度', totalCityCount, 'city');
+      allCityProgs.forEach(function(g) {
+        cityHtml += '<div class="section-label">' + g.name + '</div>';
+        g.progs.forEach(function(s) { cityHtml += renderCard(s, 'city'); });
+      });
+      cityCount = totalCityCount;
+    }
+  }
+  if (cityCount === 0) {
+    cityHtml += '<div class="result-group-title city">' + (city || pref) + 'の市区町村の補助金</div>';
+    cityHtml += renderNoData(city || pref);
+  }
+  document.getElementById('result-city').innerHTML = cityHtml;
+
+  // === 国の補助金 ===
+  var natHtml = '';
+  var natActive = nationalSubsidies.filter(function(s) { return !s.ended; });
+  natHtml += renderGroupTitle('国の補助金制度（全国共通）', natActive.length, 'national');
+  natActive.forEach(function(s) { natHtml += renderCard(s, ''); });
+  document.getElementById('result-national').innerHTML = natHtml;
+  // 国の補助金の合計
+  natActive.forEach(function(s) {
+    if (s.maxVal > 0) {
+      if (s.name.indexOf('みらいエコ') >= 0) total += s.maxVal;
+      else if (s.name.indexOf('給湯') >= 0) total += s.maxVal;
+      else if (s.name.indexOf('蓄電池') >= 0) total += s.maxVal;
+    }
+  });
+
+  // === 税制優遇・金利優遇 ===
+  var taxHtml = '';
+  var taxActive = taxIncentives.filter(function(s) { return !s.ended; });
+  taxHtml += renderGroupTitle('税制優遇・金利優遇制度', taxActive.length, 'tax');
+  taxActive.forEach(function(s) {
+    var cls = s.type === 'rate' ? 'rate' : 'tax';
+    taxHtml += renderCard(s, cls);
+  });
+  document.getElementById('result-tax').innerHTML = taxHtml;
+
+  // === サマリー ===
+  var regionLabel = city ? pref + ' ' + city : pref;
+  document.getElementById('region-label').innerHTML = '&#127873; ' + regionLabel + ' で利用可能な補助金（概算最大）';
+  if (total > 0) {
+    document.getElementById('total-amount').textContent = '最大 約' + Math.floor(total / 10000) + '万円';
+  } else {
+    document.getElementById('total-amount').textContent = '詳細は各制度をご確認ください';
+  }
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('cta-section').style.display = 'block';
+  document.getElementById('disclaimer').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderNoData(areaName) {
+  return '<div class="no-data">' +
+    '<h3>データが見つかりませんでした</h3>' +
+    '<p>お住まいの自治体の公式サイトで住宅関連補助金をご確認ください。</p>' +
+    '<div class="guide"><ul>' +
+    '<li>「<strong>' + (areaName || '自治体名') + ' 住宅 補助金</strong>」で検索</li>' +
+    '<li>自治体の「環境」「住宅」「建築」部門に問い合わせ</li>' +
+    '<li>国の補助金は全国どこでも申請可能です</li>' +
+    '</ul></div></div>';
+}
+
+function resetSearch() {
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('cta-section').style.display = 'none';
+  document.getElementById('disclaimer').style.display = 'none';
+  document.getElementById('pref').value = '';
+  document.getElementById('city').innerHTML = '<option value="">先に都道府県を選択してください</option>';
+  document.getElementById('city').disabled = true;
+  document.getElementById('search-section').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
