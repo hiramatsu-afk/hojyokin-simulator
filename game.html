@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>うんちシューティング 💩🐕</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #1a1a2e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  font-family: 'Segoe UI', 'Noto Sans JP', sans-serif;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+}
+#gameContainer {
+  position: relative;
+  width: 400px;
+  height: 600px;
+  max-width: 100vw;
+  max-height: 80dvh;
+}
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  box-shadow: 0 0 40px rgba(100, 200, 255, 0.3);
+}
+#ui {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+#startScreen, #gameOverScreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  pointer-events: auto;
+}
+#gameOverScreen { display: none; }
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(255,200,50,0.6);
+  text-align: center;
+  line-height: 1.4;
+}
+.subtitle {
+  font-size: 16px;
+  color: #aaa;
+  text-align: center;
+}
+.btn {
+  padding: 14px 40px;
+  font-size: 20px;
+  font-weight: 700;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ff6b6b, #ffa500);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(255,100,50,0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn:hover { transform: scale(1.05); box-shadow: 0 6px 30px rgba(255,100,50,0.6); }
+.btn:active { transform: scale(0.97); }
+#score {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffe066;
+  text-shadow: 0 0 10px rgba(255,200,50,0.5);
+  pointer-events: none;
+}
+#lives {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  font-size: 22px;
+  pointer-events: none;
+}
+#finalScore {
+  font-size: 48px;
+  font-weight: 700;
+  color: #ffe066;
+  text-shadow: 0 0 20px rgba(255,200,50,0.5);
+}
+#mobileControls {
+  display: none;
+  width: 400px;
+  max-width: 100vw;
+  padding: 10px 0;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+.mBtn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.mBtn:active { background: rgba(255,255,255,0.3); }
+.mBtn.fire {
+  width: 90px;
+  height: 90px;
+  background: rgba(255,100,50,0.3);
+  border-color: rgba(255,100,50,0.5);
+  font-size: 20px;
+  font-weight: 700;
+}
+@media (pointer: coarse) {
+  #mobileControls { display: flex; }
+}
+</style>
+</head>
+<body>
+
+<div id="gameContainer">
+  <canvas id="canvas"></canvas>
+  <div id="score" style="display:none;">0</div>
+  <div id="lives" style="display:none;"></div>
+  <div id="ui">
+    <div id="startScreen">
+      <div class="title">🐕 うんちシューティング 💩</div>
+      <div class="subtitle">迫りくるうんちから街を守れ！</div>
+      <div class="subtitle" style="font-size:13px;color:#888;">← → 移動 ／ スペース 発射</div>
+      <button class="btn" onclick="startGame()">スタート</button>
+    </div>
+    <div id="gameOverScreen">
+      <div class="title">ゲームオーバー</div>
+      <div id="finalScore">0</div>
+      <div class="subtitle">スコア</div>
+      <button class="btn" onclick="startGame()">もう一度</button>
+    </div>
+  </div>
+</div>
+
+<div id="mobileControls">
+  <button class="mBtn" id="btnLeft">◀</button>
+  <button class="mBtn fire" id="btnFire">発射</button>
+  <button class="mBtn" id="btnRight">▶</button>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const W = 400, H = 600;
+canvas.width = W;
+canvas.height = H;
+
+// Game state
+let dog, bullets, poops, particles, score, lives, gameRunning, spawnTimer, difficulty;
+const keys = {};
+
+// Dog (player)
+function createDog() {
+  return { x: W / 2, y: H - 60, w: 40, h: 40, speed: 5 };
+}
+
+// Drawing functions using emoji-style shapes
+function drawDog(d) {
+  ctx.save();
+  ctx.translate(d.x, d.y);
+  // Body
+  ctx.fillStyle = '#c8841d';
+  ctx.beginPath();
+  ctx.ellipse(0, 5, 20, 16, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Head
+  ctx.fillStyle = '#d4943a';
+  ctx.beginPath();
+  ctx.arc(0, -12, 14, 0, Math.PI * 2);
+  ctx.fill();
+  // Ears
+  ctx.fillStyle = '#8B5E3C';
+  ctx.beginPath();
+  ctx.ellipse(-12, -20, 6, 10, -0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(12, -20, 6, 10, 0.3, 0, Math.PI * 2);
+  ctx.fill();
+  // Eyes
+  ctx.fillStyle = '#111';
+  ctx.beginPath();
+  ctx.arc(-5, -14, 2.5, 0, Math.PI * 2);
+  ctx.arc(5, -14, 2.5, 0, Math.PI * 2);
+  ctx.fill();
+  // Eye shine
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(-4, -15, 1, 0, Math.PI * 2);
+  ctx.arc(6, -15, 1, 0, Math.PI * 2);
+  ctx.fill();
+  // Nose
+  ctx.fillStyle = '#222';
+  ctx.beginPath();
+  ctx.ellipse(0, -9, 3, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Mouth
+  ctx.strokeStyle = '#222';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(0, -7, 4, 0.1, Math.PI - 0.1);
+  ctx.stroke();
+  // Tail
+  ctx.strokeStyle = '#c8841d';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(18, 5);
+  ctx.quadraticCurveTo(28, -10, 22, -18);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawPoop(p) {
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  const s = p.size / 25;
+  ctx.scale(s, s);
+  // Base
+  ctx.fillStyle = '#8B6914';
+  ctx.beginPath();
+  ctx.ellipse(0, 12, 16, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Middle
+  ctx.fillStyle = '#7B5B12';
+  ctx.beginPath();
+  ctx.ellipse(0, 2, 12, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Top
+  ctx.fillStyle = '#6B4B10';
+  ctx.beginPath();
+  ctx.ellipse(0, -6, 8, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Tip
+  ctx.beginPath();
+  ctx.moveTo(-4, -10);
+  ctx.quadraticCurveTo(0, -22, 4, -10);
+  ctx.fill();
+  // Eyes
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(-4, -4, 3, 0, Math.PI * 2);
+  ctx.arc(4, -4, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#111';
+  ctx.beginPath();
+  ctx.arc(-4, -3.5, 1.5, 0, Math.PI * 2);
+  ctx.arc(4, -3.5, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  // Grin
+  ctx.strokeStyle = '#111';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(0, 2, 5, 0.2, Math.PI - 0.2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawBullet(b) {
+  // Tennis ball
+  ctx.save();
+  ctx.translate(b.x, b.y);
+  ctx.fillStyle = '#c8e620';
+  ctx.beginPath();
+  ctx.arc(0, 0, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(-1, 0, 4, -0.8, 0.8);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(3, 0, 4, Math.PI - 0.8, Math.PI + 0.8);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function spawnPoop() {
+  const size = 20 + Math.random() * 15;
+  poops.push({
+    x: size + Math.random() * (W - size * 2),
+    y: -size,
+    size: size,
+    speed: 1.2 + Math.random() * difficulty,
+    wobble: Math.random() * Math.PI * 2,
+    wobbleSpeed: 0.02 + Math.random() * 0.03
+  });
+}
+
+function spawnParticles(x, y, color, count) {
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 1 + Math.random() * 4;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      life: 30 + Math.random() * 20,
+      maxLife: 50,
+      size: 2 + Math.random() * 4,
+      color
+    });
+  }
+}
+
+function drawParticles() {
+  particles.forEach(p => {
+    ctx.globalAlpha = p.life / p.maxLife;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size * (p.life / p.maxLife), 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+
+function drawBackground() {
+  // Sky gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#0f0c29');
+  grad.addColorStop(0.5, '#302b63');
+  grad.addColorStop(1, '#24243e');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+  // Stars
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  for (let i = 0; i < 50; i++) {
+    const sx = (i * 97 + 31) % W;
+    const sy = (i * 53 + 17) % (H - 100);
+    const ss = 0.5 + (i % 3) * 0.5;
+    ctx.beginPath();
+    ctx.arc(sx, sy, ss, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // Ground
+  ctx.fillStyle = '#2d5a27';
+  ctx.fillRect(0, H - 30, W, 30);
+  ctx.fillStyle = '#3a7a32';
+  ctx.fillRect(0, H - 30, W, 4);
+}
+
+function drawHUD() {
+  document.getElementById('score').textContent = score;
+  let heartsStr = '';
+  for (let i = 0; i < lives; i++) heartsStr += '❤️';
+  for (let i = lives; i < 3; i++) heartsStr += '🤍';
+  document.getElementById('lives').textContent = heartsStr;
+}
+
+let lastShot = 0;
+const SHOOT_COOLDOWN = 200;
+
+function shoot() {
+  const now = Date.now();
+  if (now - lastShot < SHOOT_COOLDOWN) return;
+  lastShot = now;
+  bullets.push({ x: dog.x, y: dog.y - 25, speed: 8 });
+}
+
+function update() {
+  if (!gameRunning) return;
+
+  // Move dog
+  if (keys['ArrowLeft'] || keys['left']) dog.x -= dog.speed;
+  if (keys['ArrowRight'] || keys['right']) dog.x += dog.speed;
+  dog.x = Math.max(20, Math.min(W - 20, dog.x));
+
+  // Auto-shoot on hold
+  if (keys[' '] || keys['fire']) shoot();
+
+  // Update bullets
+  bullets.forEach(b => b.y -= b.speed);
+  bullets = bullets.filter(b => b.y > -10);
+
+  // Spawn poops
+  spawnTimer--;
+  if (spawnTimer <= 0) {
+    spawnPoop();
+    spawnTimer = Math.max(15, 60 - difficulty * 5);
+  }
+
+  // Update poops
+  poops.forEach(p => {
+    p.y += p.speed;
+    p.wobble += p.wobbleSpeed;
+    p.x += Math.sin(p.wobble) * 0.8;
+  });
+
+  // Bullet-poop collision
+  bullets = bullets.filter(b => {
+    let hit = false;
+    poops = poops.filter(p => {
+      const dx = b.x - p.x, dy = b.y - p.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < p.size) {
+        hit = true;
+        score += 10;
+        difficulty = Math.min(10, 1 + Math.floor(score / 100) * 0.5);
+        spawnParticles(p.x, p.y, '#c8a84e', 12);
+        spawnParticles(p.x, p.y, '#ffe066', 6);
+        return false;
+      }
+      return true;
+    });
+    return !hit;
+  });
+
+  // Poop-dog collision
+  poops = poops.filter(p => {
+    const dx = p.x - dog.x, dy = p.y - dog.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < p.size + 15) {
+      lives--;
+      spawnParticles(dog.x, dog.y, '#ff4444', 15);
+      if (lives <= 0) {
+        gameOver();
+      }
+      return false;
+    }
+    return true;
+  });
+
+  // Poop missed (fell off screen)
+  poops = poops.filter(p => p.y < H + 30);
+
+  // Update particles
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.1;
+    p.life--;
+  });
+  particles = particles.filter(p => p.life > 0);
+}
+
+function draw() {
+  drawBackground();
+  bullets.forEach(drawBullet);
+  poops.forEach(drawPoop);
+  drawDog(dog);
+  drawParticles();
+  drawHUD();
+}
+
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+function startGame() {
+  dog = createDog();
+  bullets = [];
+  poops = [];
+  particles = [];
+  score = 0;
+  lives = 3;
+  difficulty = 1;
+  spawnTimer = 60;
+  gameRunning = true;
+  lastShot = 0;
+
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('gameOverScreen').style.display = 'none';
+  document.getElementById('score').style.display = 'block';
+  document.getElementById('lives').style.display = 'block';
+}
+
+function gameOver() {
+  gameRunning = false;
+  document.getElementById('finalScore').textContent = score;
+  document.getElementById('gameOverScreen').style.display = 'flex';
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if ([' ', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+    e.preventDefault();
+  }
+});
+document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+// Mobile controls
+function setupMobileBtn(id, key) {
+  const btn = document.getElementById(id);
+  btn.addEventListener('touchstart', e => { e.preventDefault(); keys[key] = true; });
+  btn.addEventListener('touchend', e => { e.preventDefault(); keys[key] = false; });
+  btn.addEventListener('mousedown', e => { keys[key] = true; });
+  btn.addEventListener('mouseup', e => { keys[key] = false; });
+}
+setupMobileBtn('btnLeft', 'left');
+setupMobileBtn('btnRight', 'right');
+setupMobileBtn('btnFire', 'fire');
+
+// Init
+dog = createDog();
+bullets = [];
+poops = [];
+particles = [];
+score = 0;
+lives = 3;
+difficulty = 1;
+spawnTimer = 60;
+gameRunning = false;
+
+gameLoop();
+</script>
+</body>
+</html>
